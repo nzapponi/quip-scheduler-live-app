@@ -9179,15 +9179,25 @@ module.exports = quip;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-var _jsxFileName = "/Users/nzapponi/Git Repositories/Quip/meeting-scheduler/src/App.jsx";
+var _jsxFileName = '/Users/nzapponi/Git Repositories/Quip/meeting-scheduler/src/containers/App/App.js';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(337);
+
+var _react2 = _interopRequireDefault(_react);
 
 var _App = __webpack_require__(332);
 
 var _App2 = _interopRequireDefault(_App);
 
+var _Scheduler = __webpack_require__(339);
+
+var _Scheduler2 = _interopRequireDefault(_Scheduler);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -9195,33 +9205,109 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var App = function (_React$Component) {
-    _inherits(App, _React$Component);
+var App = function (_Component) {
+    _inherits(App, _Component);
 
     function App() {
+        var _ref;
+
+        var _temp, _this, _ret;
+
         _classCallCheck(this, App);
 
-        return _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).apply(this, arguments));
+        for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+            args[_key] = arguments[_key];
+        }
+
+        return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = App.__proto__ || Object.getPrototypeOf(App)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
+            days: [{
+                number: '21',
+                slots: [{
+                    startTime: '9am',
+                    endTime: '11am'
+                }, {
+                    startTime: '12pm',
+                    endTime: '2pm'
+                }]
+            }, {
+                number: '23',
+                slots: [{
+                    startTime: '9am',
+                    endTime: '10am'
+                }]
+            }]
+        }, _this.newSessionHandler = function () {
+            var day = Object.assign({}, _this.state.days[1]);
+            var newSlots = [].concat(_toConsumableArray(day.slots));
+            newSlots.push({
+                startTime: '11am',
+                endTime: '2pm'
+            });
+            day.slots = newSlots;
+
+            var newDays = [].concat(_toConsumableArray(_this.state.days));
+            newDays[1] = day;
+
+            _this.setState({
+                days: newDays
+            });
+        }, _this.deleteDayHandler = function (dayNumber) {
+            var days = _this.state.days;
+            // const updatedDays = days.filter((day) => {
+            //     return day.number != dayNumber;
+            //     // if (day.number == dayNumber) {
+            //     //     return false;
+            //     // } else {
+            //     //     return true;
+            //     // }
+            // });
+
+            var updatedDays = days.filter(function (day) {
+                return day.number != dayNumber;
+            });
+
+            _this.setState({
+                days: updatedDays
+            });
+        }, _temp), _possibleConstructorReturn(_this, _ret);
     }
 
     _createClass(App, [{
-        key: "render",
+        key: 'render',
         value: function render() {
-            return React.createElement(
-                "div",
-                { className: _App2.default.hello, __source: {
+            console.log('Render');
+
+            return _react2.default.createElement(
+                'div',
+                {
+                    __source: {
                         fileName: _jsxFileName,
-                        lineNumber: 5
+                        lineNumber: 73
                     },
                     __self: this
                 },
-                "Hello, James!"
+                _react2.default.createElement(_Scheduler2.default, { days: this.state.days, onDeleteDay: this.deleteDayHandler, __source: {
+                        fileName: _jsxFileName,
+                        lineNumber: 74
+                    },
+                    __self: this
+                }),
+                _react2.default.createElement(
+                    'button',
+                    { onClick: this.newSessionHandler, __source: {
+                            fileName: _jsxFileName,
+                            lineNumber: 75
+                        },
+                        __self: this
+                    },
+                    'Add New Session'
+                )
             );
         }
     }]);
 
     return App;
-}(React.Component);
+}(_react.Component);
 
 exports.default = App;
 
@@ -9230,7 +9316,221 @@ exports.default = App;
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
-module.exports = {"hello":"App__hello"};
+
+/***/ }),
+/* 333 */,
+/* 334 */,
+/* 335 */,
+/* 336 */,
+/* 337 */
+/***/ (function(module, exports) {
+
+module.exports = React;
+
+/***/ }),
+/* 338 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+var _jsxFileName = '/Users/nzapponi/Git Repositories/Quip/meeting-scheduler/src/components/Scheduler/Day/Slot/Slot.js';
+
+var _react = __webpack_require__(337);
+
+var _react2 = _interopRequireDefault(_react);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var slot = function slot(props) {
+    return _react2.default.createElement(
+        'p',
+        {
+            __source: {
+                fileName: _jsxFileName,
+                lineNumber: 4
+            },
+            __self: undefined
+        },
+        _react2.default.createElement(
+            'b',
+            {
+                __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 4
+                },
+                __self: undefined
+            },
+            'Start'
+        ),
+        ': ',
+        props.slot.startTime,
+        ', ',
+        _react2.default.createElement(
+            'b',
+            {
+                __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 4
+                },
+                __self: undefined
+            },
+            'End'
+        ),
+        ': ',
+        props.slot.endTime
+    );
+};
+
+exports.default = slot;
+
+/***/ }),
+/* 339 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+var _jsxFileName = '/Users/nzapponi/Git Repositories/Quip/meeting-scheduler/src/components/Scheduler/Scheduler.js';
+
+var _react = __webpack_require__(337);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _Day = __webpack_require__(340);
+
+var _Day2 = _interopRequireDefault(_Day);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var scheduler = function scheduler(props) {
+
+    var days = props.days;
+
+    var dayComponents = [];
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+        for (var _iterator = days[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var day = _step.value;
+
+            dayComponents.push(_react2.default.createElement(_Day2.default, { key: day.number, day: day, onDelete: props.onDeleteDay, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 11
+                },
+                __self: undefined
+            }));
+        }
+    } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion && _iterator.return) {
+                _iterator.return();
+            }
+        } finally {
+            if (_didIteratorError) {
+                throw _iteratorError;
+            }
+        }
+    }
+
+    return _react2.default.createElement(
+        'div',
+        {
+            __source: {
+                fileName: _jsxFileName,
+                lineNumber: 14
+            },
+            __self: undefined
+        },
+        dayComponents
+    );
+};
+
+exports.default = scheduler;
+
+/***/ }),
+/* 340 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+var _jsxFileName = '/Users/nzapponi/Git Repositories/Quip/meeting-scheduler/src/components/Scheduler/Day/Day.js';
+
+var _react = __webpack_require__(337);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _Slot = __webpack_require__(338);
+
+var _Slot2 = _interopRequireDefault(_Slot);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var day = function day(props) {
+
+    var dayConfiguration = props.day;
+
+    var slots = dayConfiguration.slots.map(function (slot, index) {
+        return _react2.default.createElement(_Slot2.default, { key: index, slot: slot, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 10
+            },
+            __self: undefined
+        });
+    });
+
+    return _react2.default.createElement(
+        'div',
+        {
+            __source: {
+                fileName: _jsxFileName,
+                lineNumber: 13
+            },
+            __self: undefined
+        },
+        _react2.default.createElement(
+            'p',
+            {
+                __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 14
+                },
+                __self: undefined
+            },
+            dayConfiguration.number
+        ),
+        _react2.default.createElement(
+            'button',
+            { onClick: function onClick() {
+                    props.onDelete(dayConfiguration.number);
+                }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 15
+                },
+                __self: undefined
+            },
+            'Remove'
+        ),
+        slots
+    );
+};
+
+exports.default = day;
 
 /***/ })
 /******/ ]);
