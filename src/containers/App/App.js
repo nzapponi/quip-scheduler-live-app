@@ -5,7 +5,15 @@ import Scheduler from '../../components/Scheduler/Scheduler';
 
 class App extends Component {
 
+    componentDidMount() {
+        console.log('ComponentDidMount');
+        this.setState({
+            record: this.props.record
+        });
+    }
+
     state = {
+        record: null,
         days: [
             {
                 number: '21',
@@ -69,6 +77,11 @@ class App extends Component {
 
     render() {
         console.log('Render');
+
+        const record = this.props.record;
+        // DOESN'T WORK: record.createdAt
+        // const createdAt = record.get('createdAt');
+        // console.log(createdAt);
 
         return <div>
             <Scheduler days={this.state.days} onDeleteDay={this.deleteDayHandler} />
