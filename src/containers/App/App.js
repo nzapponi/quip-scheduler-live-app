@@ -3,19 +3,21 @@ import moment from 'moment';
 import Styles from "./App.less";
 
 import Scheduler from '../../components/Scheduler/Scheduler';
+import DateSelector from '../../components/DateSelector/DateSelector';
 
 export default class App extends Component {
+
+    state = {
+        record: null,
+        selectingDates: true,
+        selectedDates: []
+    }
 
     componentDidMount() {
         console.log('ComponentDidMount');
         this.setState({
             record: this.props.record
         });
-    }
-
-    state = {
-        record: null,
-        selectedDates: []
     }
 
     setDateHandler = (newDate) => {
@@ -51,27 +53,30 @@ export default class App extends Component {
         });
     }
 
+    toggleSelectDatesHandler = () => {
+        const currentState = this.state.selectingDates;
+
+        this.setState({
+            selectingDates: !currentState
+        });
+    }
+
     render() {
         // DOESN'T WORK: this.props.record.createdAt
         console.log(moment(this.props.record.get('createdAt')).format('L'));
         console.log(this.props.record);
 
-        const selectedDates = this.state.selectedDates.sort().map(date => {
-            const momentDate = moment(date);
-
-            return <li key={date} onClick={() => this.removeDateHandler(date)}>{momentDate.format('L')}</li>;
-        });
+        let component = <Scheduler days={[]} toggle={this.toggleSelectDatesHandler} />;
+        if (this.state.selectingDates) {
+            component = <DateSelector
+                dates={this.state.selectedDates}
+                onSetDate={this.setDateHandler}
+                onDeleteDate={this.removeDateHandler}
+                onComplete={this.toggleSelectDatesHandler} />;
+        }
 
         return <div>
-            <quip.apps.ui.CalendarPicker
-                initialSelectedDateMs={Date.now()}
-                onChangeSelectedDateMs={this.setDateHandler}
-            />
-
-            <p>Selected dates:</p>
-            <ul>
-                {selectedDates}
-            </ul>
+            {component}
         </div>;
     }
 }

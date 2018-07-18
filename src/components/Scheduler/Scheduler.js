@@ -12,7 +12,14 @@ const scheduler = (props) => {
     }
 
     return <div>
+        <h3>Scheduler</h3>
         {dayComponents}
+
+        <quip.apps.ui.Button
+            text="Change Dates"
+            primary={true}
+            onClick={props.toggle}
+        />
     </div>;
 };
 
