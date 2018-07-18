@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import moment from 'moment';
 import Styles from "./App.less";
 
 import Scheduler from '../../components/Scheduler/Scheduler';
@@ -37,7 +38,8 @@ class App extends Component {
                     }
                 ]
             }
-        ]
+        ],
+        selectedDates: []
     }
 
     newSessionHandler = () => {
@@ -75,6 +77,37 @@ class App extends Component {
         });
     }
 
+    setDateHandler = (newDate) => {
+        const currentDates = [...this.state.selectedDates];
+
+        const today = moment();
+        const startOfToday = today.startOf('day');
+
+        if (currentDates.indexOf(newDate) == -1 && newDate >= startOfToday.valueOf()) {
+            currentDates.push(newDate);
+
+            this.setState({
+                selectedDates: currentDates
+            });
+        }
+    }
+
+    removeDateHandler = (date) => {
+        // with splice
+        const updatedDates = [...this.state.selectedDates];
+        const indexToRemove = updatedDates.indexOf(date);
+        updatedDates.splice(indexToRemove, 1);
+
+        // with filter
+        // const updatedDates = this.state.selectedDates.filter(d => {
+        //     return d != date;
+        // });
+
+        this.setState({
+            selectedDates: updatedDates
+        });
+    }
+
     render() {
         console.log('Render');
 
@@ -83,9 +116,24 @@ class App extends Component {
         // const createdAt = record.get('createdAt');
         // console.log(createdAt);
 
+        const selectedDates = this.state.selectedDates.sort().map(date => {
+            const momentDate = moment(date);
+
+            return <li key={date} onClick={() => this.removeDateHandler(date)}>{momentDate.format('L')}</li>;
+        });
+
         return <div>
             <Scheduler days={this.state.days} onDeleteDay={this.deleteDayHandler} />
             <button onClick={this.newSessionHandler}>Add New Session</button>
+
+            <quip.apps.ui.CalendarPicker
+                initialSelectedDateMs={Date.now()}
+                onChangeSelectedDateMs={this.setDateHandler}/>
+
+            <p>Selected dates:</p>
+            <ul>
+                {selectedDates}
+            </ul>
         </div>;
     }
 }
