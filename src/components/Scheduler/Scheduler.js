@@ -13,7 +13,9 @@ const scheduler = (props) => {
             day={day}
             onDelete={props.onDeleteDay}
             setNewDate={props.setNewDate}
-            dismissDatePicker={props.dismissDatePicker} />);
+            openDatePicker={props.openDatePicker}
+            dismissDatePicker={props.dismissDatePicker} 
+            createTimeslot={props.createTimeslot} />);
     }
 
     return <div>

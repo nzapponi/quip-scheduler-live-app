@@ -7,6 +7,13 @@ export class Root extends quip.apps.RootRecord {
             timeSlots: quip.apps.RecordList.Type(Timeslot)
         };
     }
+
+    static getDefaultProperties() {
+        return {
+            createdAt: Date.now(),
+            timeSlots: []
+        }
+    }
 }
 
 export class Timeslot extends quip.apps.Record {
@@ -16,6 +23,12 @@ export class Timeslot extends quip.apps.Record {
             endTime: 'number',
             responses: quip.apps.RecordList.Type(Response)
         };
+    }
+
+    static getDefaultProperties() {
+        return {
+            responses: []
+        }
     }
 
     supportsComments() {

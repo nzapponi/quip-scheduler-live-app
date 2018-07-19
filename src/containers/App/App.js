@@ -12,8 +12,14 @@ export default class App extends Component {
     }
 
     componentDidMount() {
-        console.log('ComponentDidMount');
+        this.updateDates();
 
+        this.setState({
+            record: this.props.record
+        });
+    }
+
+    updateDates() {
         // Calculate days
         let timeslots = [];
         if (this.props.record.has('timeSlots')) {
@@ -24,7 +30,7 @@ export default class App extends Component {
         const days = [];
 
         for (let timeslot of timeslots) {
-            let time = timeslot.get('time');
+            let time = timeslot.get('startTime');
             let startOfDay = moment(time).startOf('day').valueOf();
             if (startOfDay >= moment().startOf('day')) {
                 if (startOfDays.indexOf(startOfDay) == -1) {
@@ -44,16 +50,13 @@ export default class App extends Component {
             }
         }
 
-        if (days.length == 0) {
-            days.push({
-                timestamp: 0,
-                configuring: true,
-                timeslots: []
-            });
-        }
+        days.push({
+            timestamp: 0,
+            configuring: false,
+            timeslots: []
+        });
 
         this.setState({
-            record: this.props.record,
             dates: days
         });
     }
@@ -66,6 +69,34 @@ export default class App extends Component {
             const newDay = {
                 ...day,
                 configuring: false
+            };
+
+            const newDates = [...this.state.dates];
+            newDates[index] = newDay;
+
+            const emptyDate = newDates.find(date => date.timestamp == 0);
+            if (!emptyDate) {
+                newDates.push({
+                    timestamp: 0,
+                    configuring: false,
+                    timeslots: []
+                });
+            }
+
+            this.setState({
+                dates: newDates
+            });
+        }
+    }
+
+    openDatePickerHandler = (timestamp) => {
+        const index = this.state.dates.findIndex(date => date.timestamp == timestamp);
+        if (index > -1) {
+            const day = this.state.dates[index];
+
+            const newDay = {
+                ...day,
+                configuring: true
             };
 
             const newDates = [...this.state.dates];
@@ -109,6 +140,38 @@ export default class App extends Component {
         }
     }
 
+    createTimeslotHander = (startOfDay, startTime, endTime) => {
+        const newTimeslot = this.props.record.get('timeSlots').add({
+            startTime: startTime,
+            endTime: endTime
+        });
+
+        const index = this.state.dates.findIndex(date => date.timestamp == startOfDay);
+        
+        if (index > -1) {
+            const day = this.state.dates[index];
+
+            const newDay = {
+                ...day,
+                timeslots: [
+                    ...day.timeslots,
+                    newTimeslot
+                ]
+            };
+
+            const newDates = [...this.state.dates];
+            newDates[index] = newDay;
+
+            this.setState({
+                dates: newDates
+            });
+        } else {
+            this.setState({
+                dates: [...this.state.dates]
+            });
+        }
+    }
+
     // removeDateHandler = (date) => {
     //     // with splice
     //     const updatedDates = [...this.state.selectedDates];
@@ -127,19 +190,13 @@ export default class App extends Component {
 
     render() {
 
-        // if (this.state.selectingDates) {
-        //     component = <DateSelector
-        //         dates={this.state.selectedDates}
-        //         onSetDate={this.setDateHandler}
-        //         onDeleteDate={this.removeDateHandler}
-        //         onComplete={this.toggleSelectDatesHandler} />;
-        // }
-
         return <div>
             <Scheduler
                 days={this.state.dates}
+                openDatePicker={this.openDatePickerHandler}
                 dismissDatePicker={this.dismissDatePickerHandler}
-                setNewDate={this.setDateHandler} />
+                setNewDate={this.setDateHandler}
+                createTimeslot={this.createTimeslotHander} />
         </div>;
     }
 }

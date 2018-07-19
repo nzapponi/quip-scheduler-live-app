@@ -17,7 +17,9 @@ class Day extends Component {
         endTime: {
             hour: null,
             minute: null
-        }
+        },
+        startTimeInput: '',
+        endTimeInput: ''
     }
 
     showNewSlotPickerHandler = (event) => {
@@ -35,7 +37,9 @@ class Day extends Component {
             endTime: {
                 hour: hour + 1,
                 minute: 0
-            }
+            },
+            startTimeInput: `${hour < 10 ? '0' + hour : hour}:00`,
+            endTimeInput: `${hour + 1 < 10 ? '0' + (hour + 1) : (hour + 1)}:00`
         });
     }
 
@@ -44,6 +48,50 @@ class Day extends Component {
         this.setState({
             newSlotPicker: false
         });
+    }
+
+    updateTimeHandler = (type, event) => {
+
+        const timeComponents = event.target.value.split(':');
+        const hour = +timeComponents[0];
+        const minute = +timeComponents[1];
+
+        if (hour >= 0 && hour < 24 && minute >= 0 && minute < 60) {
+            if (type === 'start') {
+                this.setState({
+                    startTime: {
+                        hour: hour,
+                        minute: minute
+                    },
+                    startTimeInput: event.target.value
+                });
+            } else if (type === 'end') {
+                this.setState({
+                    endTime: {
+                        hour: hour,
+                        minute: minute
+                    },
+                    endTimeInput: event.target.value
+                });
+            }
+        }   
+    }
+
+    createSlotHandler = () => {
+        // Create the new slot!
+
+        const startTime = moment(this.props.day.timestamp);
+        startTime.hour(this.state.startTime.hour);
+        startTime.minute(this.state.startTime.minute);
+
+        const endTime = moment(this.props.day.timestamp);
+        endTime.hour(this.state.endTime.hour);
+        endTime.minute(this.state.endTime.minute);
+
+        console.log(startTime.format(), endTime.format());
+
+        this.props.createTimeslot(this.props.day.timestamp, startTime.valueOf(), endTime.valueOf());
+        this.dismissNewSlotPicker();
     }
 
     render() {
@@ -76,15 +124,21 @@ class Day extends Component {
             return <Slot key={key} slot={slot} />;
         });
 
-        let prettyDay = <div>
+        let prettyDay = <div onClick={() => this.props.openDatePicker(this.props.day.timestamp)}>
             <p>Select date...</p>
         </div>;
+
+        let slotsBlock;
 
         if (this.props.day.timestamp > 0) {
             const momentTime = moment(this.props.day.timestamp);
             prettyDay = <div>
                 <p>{momentTime.format('ddd')}</p>
                 <p>{momentTime.format('D')}</p>
+            </div>;
+
+            slotsBlock = <div className={Styles.DayColumn} onClick={this.showNewSlotPickerHandler}>
+                {slots}
             </div>;
         }
 
@@ -96,7 +150,10 @@ class Day extends Component {
                         {quiptext("Select a Time")}
                     </div>
                     <div className={Styles.picker}>
-
+                        <label>Start Time</label>
+                        <input type="text" placeholder="HH:MM" value={this.state.startTimeInput} onChange={(event) => this.updateTimeHandler('start', event)} />
+                        <label>End Time</label>
+                        <input type="text" placeholder="HH:MM" value={this.state.endTimeInput} onChange={(event) => this.updateTimeHandler('end', event)} />
                     </div>
                     <div className={Styles.actions}>
                         <quip.apps.ui.Button
@@ -106,7 +163,7 @@ class Day extends Component {
                             primary={true}
                             // disabled={selectedObjectId === null}
                             text={quiptext("Save")}
-                            onClick={this.dismissNewSlotPicker}/>
+                            onClick={this.createSlotHandler}/>
                     </div>
                 </div>
             </Dialog>;
@@ -115,9 +172,7 @@ class Day extends Component {
         return <div>
             {prettyDay}
             {/* <button onClick={() => { this.props.onDelete(dayConfiguration.number) }}>Remove</button> */}
-            <div className={Styles.DayColumn} onClick={this.showNewSlotPickerHandler}>
-                {slots}
-            </div>
+            {slotsBlock}
             {datePicker}
             {newSlotPicker}
         </div>;
