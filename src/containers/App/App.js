@@ -3,80 +3,143 @@ import moment from 'moment';
 import Styles from "./App.less";
 
 import Scheduler from '../../components/Scheduler/Scheduler';
-import DateSelector from '../../components/DateSelector/DateSelector';
 
 export default class App extends Component {
 
     state = {
         record: null,
-        selectingDates: true,
-        selectedDates: []
+        dates: []
     }
 
     componentDidMount() {
         console.log('ComponentDidMount');
+
+        // Calculate days
+        let timeslots = [];
+        if (this.props.record.has('timeSlots')) {
+            timeslots = this.props.record.get('timeSlots').getRecords();
+        }
+
+        const startOfDays = [];
+        const days = [];
+
+        for (let timeslot of timeslots) {
+            let time = timeslot.get('time');
+            let startOfDay = moment(time).startOf('day').valueOf();
+            if (startOfDay >= moment().startOf('day')) {
+                if (startOfDays.indexOf(startOfDay) == -1) {
+                    startOfDays.push(startOfDay);
+
+                    days.push({
+                        timestamp: startOfDay,
+                        configuring: false,
+                        timeslots: [timeslot]
+                    });
+                } else {
+                    let day = days.find(day => day.timestamp == startOfDay);
+                    if (day) {
+                        day.timeslots.push(timeslot);
+                    }
+                }
+            }
+        }
+
+        if (days.length == 0) {
+            days.push({
+                timestamp: 0,
+                configuring: true,
+                timeslots: []
+            });
+        }
+
         this.setState({
-            record: this.props.record
+            record: this.props.record,
+            dates: days
         });
     }
 
-    setDateHandler = (newDate) => {
-        const currentDates = [...this.state.selectedDates];
+    dismissDatePickerHandler = (timestamp) => {
+        const index = this.state.dates.findIndex(date => date.timestamp == timestamp);
+        if (index > -1) {
+            const day = this.state.dates[index];
 
-        const today = moment();
-        const startOfToday = today.startOf('day');
+            const newDay = {
+                ...day,
+                configuring: false
+            };
 
-        if (currentDates.indexOf(newDate) == -1 && newDate >= startOfToday.valueOf()) {
-            currentDates.push(newDate);
-
-            this.props.record.set('createdAt', newDate.valueOf());
+            const newDates = [...this.state.dates];
+            newDates[index] = newDay;
 
             this.setState({
-                selectedDates: currentDates
+                dates: newDates
             });
         }
     }
 
-    removeDateHandler = (date) => {
-        // with splice
-        const updatedDates = [...this.state.selectedDates];
-        const indexToRemove = updatedDates.indexOf(date);
-        updatedDates.splice(indexToRemove, 1);
+    setDateHandler = (oldTimestamp, newTimestamp) => {
+        const index = this.state.dates.findIndex(date => date.timestamp == oldTimestamp);
+        if (index > -1) {
+            const day = this.state.dates[index];
 
-        // with filter
-        // const updatedDates = this.state.selectedDates.filter(d => {
-        //     return d != date;
-        // });
+            // we need to update
+            const today = moment();
+            const startOfToday = today.startOf('day');
 
-        this.setState({
-            selectedDates: updatedDates
-        });
+            if (newTimestamp >= startOfToday.valueOf()) {
+
+                const newDay = {
+                    ...day,
+                    timestamp: newTimestamp
+                };
+
+                const newDates = [...this.state.dates];
+                newDates[index] = newDay;
+
+                this.setState({
+                    dates: newDates
+                });
+
+            } else {
+                this.setState({
+                    dates: [...this.state.dates]
+                });
+            }
+
+        }
     }
 
-    toggleSelectDatesHandler = () => {
-        const currentState = this.state.selectingDates;
+    // removeDateHandler = (date) => {
+    //     // with splice
+    //     const updatedDates = [...this.state.selectedDates];
+    //     const indexToRemove = updatedDates.indexOf(date);
+    //     updatedDates.splice(indexToRemove, 1);
 
-        this.setState({
-            selectingDates: !currentState
-        });
-    }
+    //     // with filter
+    //     // const updatedDates = this.state.selectedDates.filter(d => {
+    //     //     return d != date;
+    //     // });
+
+    //     this.setState({
+    //         selectedDates: updatedDates
+    //     });
+    // }
 
     render() {
-        // DOESN'T WORK: this.props.record.createdAt
-        console.log(moment(this.props.record.get('createdAt')).format('L'));
-        console.log(this.props.record);
 
-        let component = <Scheduler days={[]} toggle={this.toggleSelectDatesHandler} />;
-        if (this.state.selectingDates) {
-            component = <DateSelector
-                dates={this.state.selectedDates}
-                onSetDate={this.setDateHandler}
-                onDeleteDate={this.removeDateHandler}
-                onComplete={this.toggleSelectDatesHandler} />;
-        }
+        // if (this.state.selectingDates) {
+        //     component = <DateSelector
+        //         dates={this.state.selectedDates}
+        //         onSetDate={this.setDateHandler}
+        //         onDeleteDate={this.removeDateHandler}
+        //         onComplete={this.toggleSelectDatesHandler} />;
+        // }
 
         return <div>
-            {component}
+            <Scheduler
+                days={this.state.dates}
+                dismissDatePicker={this.dismissDatePickerHandler}
+                setNewDate={this.setDateHandler} />
         </div>;
     }
 }

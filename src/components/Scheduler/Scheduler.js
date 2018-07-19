@@ -8,18 +8,16 @@ const scheduler = (props) => {
     
     let dayComponents = [];
     for (let day of days) {
-        dayComponents.push(<Day key={day.number} day={day} onDelete={props.onDeleteDay} />);
+        dayComponents.push(<Day
+            key={day.timestamp}
+            day={day}
+            onDelete={props.onDeleteDay}
+            setNewDate={props.setNewDate}
+            dismissDatePicker={props.dismissDatePicker} />);
     }
 
     return <div>
-        <h3>Scheduler</h3>
         {dayComponents}
-
-        <quip.apps.ui.Button
-            text="Change Dates"
-            primary={true}
-            onClick={props.toggle}
-        />
     </div>;
 };
 

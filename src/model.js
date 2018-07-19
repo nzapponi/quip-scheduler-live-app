@@ -12,7 +12,8 @@ export class Root extends quip.apps.RootRecord {
 export class Timeslot extends quip.apps.Record {
     static getProperties() {
         return {
-            time: 'number',
+            startTime: 'number',
+            endTime: 'number',
             responses: quip.apps.RecordList.Type(Response)
         };
     }
