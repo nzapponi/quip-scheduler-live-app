@@ -11,11 +11,12 @@ const scheduler = (props) => {
         dayComponents.push(<Day
             key={day.timestamp}
             day={day}
-            onDelete={props.onDeleteDay}
             setNewDate={props.setNewDate}
             openDatePicker={props.openDatePicker}
             dismissDatePicker={props.dismissDatePicker} 
-            createTimeslot={props.createTimeslot} />);
+            createTimeslot={props.createTimeslot}
+            deleteTimeslot={props.deleteTimeslot}
+            deleteDate={props.deleteDate} />);
     }
 
     return <div>

@@ -94,6 +94,10 @@ class Day extends Component {
         this.dismissNewSlotPicker();
     }
 
+    updateSlotHandler = () => {
+        this.setState({});
+    }
+
     render() {
         const dayConfiguration = this.props.day;
         const today = moment();
@@ -124,9 +128,13 @@ class Day extends Component {
             </Dialog>;
         }
 
-        let slots = dayConfiguration.timeslots.map((slot) => {
+        let slots = dayConfiguration.timeslots.sort((slotA, slotB) => {
+            const timeA = slotA.get('startTime');
+            const timeB = slotB.get('startTime');
+            return timeA - timeB;
+        }).map((slot) => {
             const key = slot.get('startTime') + '-' + slot.get('endTime');
-            return <Slot key={key} slot={slot} />;
+            return <Slot key={key} startOfDay={dayConfiguration.timestamp} slot={slot} deleteTimeslot={this.props.deleteTimeslot} updateSlot={this.updateSlotHandler} />;
         });
 
         let prettyDay = <div onClick={() => this.props.openDatePicker(this.props.day.timestamp)}>
@@ -173,6 +181,13 @@ class Day extends Component {
                 </div>
             </Dialog>;
         }
+
+        let deleteButton;
+        if (dayConfiguration.timestamp != 0 && dayConfiguration.timeslots.length == 0) {
+            deleteButton = <quip.apps.ui.Button
+                text={quiptext("Delete day")}
+                onClick={() => this.props.deleteDate(dayConfiguration.timestamp)} />;
+        }
     
         return <div>
             {prettyDay}
@@ -180,6 +195,7 @@ class Day extends Component {
             {slotsBlock}
             {datePicker}
             {newSlotPicker}
+            {deleteButton}
         </div>;
     }
     

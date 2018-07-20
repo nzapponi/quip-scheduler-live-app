@@ -27,7 +27,7 @@ export default class App extends Component {
         }
 
         const startOfDays = [];
-        const days = [];
+        let days = [];
 
         for (let timeslot of timeslots) {
             let time = timeslot.get('startTime');
@@ -49,6 +49,10 @@ export default class App extends Component {
                 }
             }
         }
+
+        days.sort((dateA, dateB) => {
+            return dateA.timestamp - dateB.timestamp;
+        });
 
         days.push({
             timestamp: 0,
@@ -127,6 +131,10 @@ export default class App extends Component {
                 const newDates = [...this.state.dates];
                 newDates[index] = newDay;
 
+                newDates.sort((dateA, dateB) => {
+                    return dateA.timestamp - dateB.timestamp;
+                });
+
                 this.setState({
                     dates: newDates
                 });
@@ -172,21 +180,42 @@ export default class App extends Component {
         }
     }
 
-    // removeDateHandler = (date) => {
-    //     // with splice
-    //     const updatedDates = [...this.state.selectedDates];
-    //     const indexToRemove = updatedDates.indexOf(date);
-    //     updatedDates.splice(indexToRemove, 1);
+    deleteTimeslotHandler = (startOfDay, slotRecord) => {
+        const myStartTime = slotRecord.get('startTime');
+        const myEndTime = slotRecord.get('endTime');
 
-    //     // with filter
-    //     // const updatedDates = this.state.selectedDates.filter(d => {
-    //     //     return d != date;
-    //     // });
+        const myDateIndex = this.state.dates.findIndex(date => date.timestamp == startOfDay);
+        if (myDateIndex > -1) {
+            const myDate = this.state.dates[myDateIndex];
+            const newTimeslots = myDate.timeslots.filter(slot => {
+                const startTime = slot.get('startTime');
+                const endTime = slot.get('endTime');
 
-    //     this.setState({
-    //         selectedDates: updatedDates
-    //     });
-    // }
+                return !(startTime == myStartTime && endTime == myEndTime);
+            });
+
+            const myNewDate = {
+                ...myDate,
+                timeslots: newTimeslots
+            };
+
+            const newDates = [...this.state.dates];
+            newDates[myDateIndex] = myNewDate;
+
+            slotRecord.delete();
+            this.setState({
+                dates: newDates
+            });
+        }
+    }
+
+    deleteDayHandler = (startOfDay) => {
+        const newDates = this.state.dates.filter(date => date.timestamp != startOfDay);
+
+        this.setState({
+            dates: newDates
+        });
+    }
 
     render() {
 
@@ -196,7 +225,9 @@ export default class App extends Component {
                 openDatePicker={this.openDatePickerHandler}
                 dismissDatePicker={this.dismissDatePickerHandler}
                 setNewDate={this.setDateHandler}
-                createTimeslot={this.createTimeslotHander} />
+                deleteDate={this.deleteDayHandler}
+                createTimeslot={this.createTimeslotHander}
+                deleteTimeslot={this.deleteTimeslotHandler} />
         </div>;
     }
 }
