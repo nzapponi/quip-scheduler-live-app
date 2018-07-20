@@ -102,20 +102,25 @@ class Day extends Component {
         let datePicker;
         if (dayConfiguration.configuring) {
             datePicker = <Dialog onDismiss={() => this.props.dismissDatePicker(this.props.day.timestamp)} showBackdrop>
-                <div style={{textAlign: 'center'}}>
-                    <p>Pick a date...</p>
+                <div className={Styles.dialog}>
+                    <div className={Styles.header}>
+                        {quiptext("Select a Date")}
+                    </div>
+                    <div className={Styles.picker} style={{padding: '20px 40px'}}>
+                        <quip.apps.ui.CalendarPicker
+                            initialSelectedDateMs={this.props.day.timestamp > 0 ? this.props.day.timestamp : Date.now()}
+                            onChangeSelectedDateMs={(newTime) => this.props.setNewDate(this.props.day.timestamp, newTime)}
+                        />
+                    </div>
+                    <div className={Styles.actions}>
+                        <quip.apps.ui.Button
+                            text="Schedule"
+                            primary={true}
+                            disabled={this.props.day.timestamp < startOfToday}
+                            onClick={() => this.props.dismissDatePicker(this.props.day.timestamp)}
+                        />
+                    </div>
                 </div>
-                <quip.apps.ui.CalendarPicker
-                    initialSelectedDateMs={this.props.day.timestamp > 0 ? this.props.day.timestamp : Date.now()}
-                    onChangeSelectedDateMs={(newTime) => this.props.setNewDate(this.props.day.timestamp, newTime)}
-                />
-                
-                <quip.apps.ui.Button
-                    text="Schedule"
-                    primary={true}
-                    disabled={this.props.day.timestamp < startOfToday}
-                    onClick={() => this.props.dismissDatePicker(this.props.day.timestamp)}
-                />
             </Dialog>;
         }
 
