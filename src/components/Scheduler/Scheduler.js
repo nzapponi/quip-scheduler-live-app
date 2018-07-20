@@ -1,6 +1,7 @@
 import React from 'react';
 
 import Day from './Day/Day';
+import Styles from './Scheduler.less';
 
 const scheduler = (props) => {
 
@@ -19,7 +20,7 @@ const scheduler = (props) => {
             deleteDate={props.deleteDate} />);
     }
 
-    return <div>
+    return <div className={Styles.SchedulerBox}>
         {dayComponents}
     </div>;
 };

@@ -9,7 +9,59 @@
 @borderColor: #ddd;
 @secondaryTextColor: #858585;
 
+.DialogInput {
+    width: 120px;
+    height: 40px;
+    text-align: center;
+    border: 1px solid #E8E8E8;
+    background-color: #F7F8FA;
+}
+
+.DayColumnWrapper {
+    background: #FFFFFF;
+    border: 2px solid #DDDDDD;
+    border-radius: 10px;
+    width: 200px;
+    margin-right: 5px;
+}
+
 /* Copyright 2017 Quip */
+// .MyButton {
+//     display: inline-block;
+//     position: relative;
+//     margin: 1px 0;
+//     padding-right: 10px;
+//     padding-left: 10px;
+//     height: 28px;
+//     font-size: 14px;
+//     font-weight: 700;
+//     border: 1px solid rgba(0,0,0,.11);
+//     border-radius: 5px;
+//     -ms-user-select: none;
+//     -webkit-user-select: none;
+//     user-select: none;
+//     cursor: pointer;
+//     white-space: nowrap;
+//     overflow: hidden;
+//     text-overflow: ellipsis;
+//     max-width: 200px;
+//     color: #fff;
+//     fill: #fff;
+//     background-color: #29b6f2;
+//     border-color: #29b6f2;
+// }
+
+// button:active:not(:disabled), input[type=button]:active:not(:disabled), input[type=submit]:active:not(:disabled) {
+//     background-color: #29b6f2;
+//     color: #fff;
+// }
+
+// .MyButton:disabled {
+//     color: #fff;
+//     fill: #fff;
+//     border-color: #29b6f2;
+//     border-radius: 5px;
+// }
 
 .dialog {
     display: flex;
@@ -21,34 +73,36 @@
 .header {
     display: flex;
     justify-content: center;
-    padding: 15px;
-    font-weight: bold;
+    padding: 20px;
+    color: #a4a4a4;
+    text-transform: uppercase;
 }
 
 .picker {
     display: flex;
     flex-direction: row;
-    border-top: 1px solid @borderColor;
-    border-bottom: 1px solid @borderColor;
+    // border-top: 1px solid @borderColor;
+    // border-bottom: 1px solid @borderColor;
     min-height: 80px;
 }
 
 .actions {
     display: flex;
-    justify-content: flex-end;
+    justify-content: center; 
     align-items: center;
     min-height: 40px;
     margin-right: 5px;
     > :not(:first-child) {
         margin-left: 5px;
     }
+    padding-bottom: 10px;
 }
 
 .errorDialog {
     display: flex;
     flex-direction: column;
     border: 1px solid @borderColor;
-    border-radius: 5px;
+    border-radius: 5px; 
 }
 
 .errorTextBlock {

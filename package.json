@@ -9,9 +9,11 @@
     },
     "author": "",
     "devDependencies": {
-        "quip-apps-webpack-config": ">=0.0.29"
+        "quip-apps-webpack-config": ">=0.0.29",
+        "svg-react-loader": "^0.4.5"
     },
     "dependencies": {
-        "moment": "^2.22.2"
+        "moment": "^2.22.2",
+        "react-fontawesome": "^1.6.1"
     }
 }

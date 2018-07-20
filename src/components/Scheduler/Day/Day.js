@@ -1,45 +1,30 @@
 import React, { Component } from 'react';
 import moment from 'moment';
+import FontAwesome from 'react-fontawesome';
 
 import Slot from './Slot/Slot';
 import Dialog from '../../dialog/dialog';
 
 import Styles from './Day.less';
+import plusIcon from './plus-solid.svg';
 
 class Day extends Component {
 
     state = {
         newSlotPicker: false,
-        startTime: {
-            hour: null,
-            minute: null
-        },
-        endTime: {
-            hour: null,
-            minute: null
-        },
-        startTimeInput: '',
-        endTimeInput: ''
+        startTime: null,
+        endTime: null,
     }
 
-    showNewSlotPickerHandler = (event) => {
-        
-        const columnPosition = event.target.getBoundingClientRect();
-        const pctFromTop = (event.clientY - columnPosition.top) / columnPosition.height;
-        const hour = Math.floor(pctFromTop * 24);
+    showNewSlotPickerHandler = () => {
+
+        const startOfHour = moment(this.props.day.timestamp).hours(moment().hours()).minutes(0);
+        const endTime = moment(this.props.day.timestamp).hours(moment().hours()).add(1, 'hours').minutes(0);
 
         this.setState({
             newSlotPicker: true,
-            startTime: {
-                hour: hour,
-                minute: 0
-            },
-            endTime: {
-                hour: hour + 1,
-                minute: 0
-            },
-            startTimeInput: `${hour < 10 ? '0' + hour : hour}:00`,
-            endTimeInput: `${hour + 1 < 10 ? '0' + (hour + 1) : (hour + 1)}:00`
+            startTime: startOfHour.valueOf(),
+            endTime: endTime.valueOf()
         });
     }
 
@@ -52,45 +37,29 @@ class Day extends Component {
 
     updateTimeHandler = (type, event) => {
 
-        const timeComponents = event.target.value.split(':');
-        const hour = +timeComponents[0];
-        const minute = +timeComponents[1];
+        const newStartTime = +event.target.value;
 
-        if (hour >= 0 && hour < 24 && minute >= 0 && minute < 60) {
-            if (type === 'start') {
-                this.setState({
-                    startTime: {
-                        hour: hour,
-                        minute: minute
-                    },
-                    startTimeInput: event.target.value
-                });
-            } else if (type === 'end') {
-                this.setState({
-                    endTime: {
-                        hour: hour,
-                        minute: minute
-                    },
-                    endTimeInput: event.target.value
-                });
+        if (type === 'start') {
+            let newEndTime = this.state.endTime;
+            if (newEndTime <= newStartTime) {
+                newEndTime = newStartTime + 60*60*1000;
             }
-        }   
+
+            this.setState({
+                startTime: newStartTime,
+                endTime: newEndTime
+            });
+        } else if (type === 'end') {
+            this.setState({
+                endTime: newStartTime
+            });
+        }
     }
 
     createSlotHandler = () => {
         // Create the new slot!
 
-        const startTime = moment(this.props.day.timestamp);
-        startTime.hour(this.state.startTime.hour);
-        startTime.minute(this.state.startTime.minute);
-
-        const endTime = moment(this.props.day.timestamp);
-        endTime.hour(this.state.endTime.hour);
-        endTime.minute(this.state.endTime.minute);
-
-        console.log(startTime.format(), endTime.format());
-
-        this.props.createTimeslot(this.props.day.timestamp, startTime.valueOf(), endTime.valueOf());
+        this.props.createTimeslot(this.props.day.timestamp, this.state.startTime, this.state.endTime);
         this.dismissNewSlotPicker();
     }
 
@@ -103,20 +72,37 @@ class Day extends Component {
         const today = moment();
         const startOfToday = today.startOf('day');
 
+        const startOfDay = moment(dayConfiguration.timestamp).startOf('day');
+
+        const hours = [];
+        for (let i = 0; i < 24; i++) {
+            let time = startOfDay.clone().hours(i).minutes(0);
+            hours.push({
+                label: time.format('LT'),
+                value: time.valueOf()
+            });
+
+            let laterTime = time.clone().minutes(30);
+            hours.push({
+                label: laterTime.format('LT'),
+                value: laterTime.valueOf()
+            });
+        }
+
         let datePicker;
         if (dayConfiguration.configuring) {
             datePicker = <Dialog onDismiss={() => this.props.dismissDatePicker(this.props.day.timestamp)} showBackdrop>
                 <div className={Styles.dialog}>
                     <div className={Styles.header}>
-                        {quiptext("Select a Date")}
+                        {quiptext("Pick a Date")}
                     </div>
-                    <div className={Styles.picker} style={{padding: '20px 40px'}}>
+                    <div className={Styles.picker} style={{padding: '0 40px'}}>
                         <quip.apps.ui.CalendarPicker
                             initialSelectedDateMs={this.props.day.timestamp > 0 ? this.props.day.timestamp : Date.now()}
                             onChangeSelectedDateMs={(newTime) => this.props.setNewDate(this.props.day.timestamp, newTime)}
                         />
                     </div>
-                    <div className={Styles.actions}>
+                    <div className={Styles.actions} style={{padding: '20px 0'}}>
                         <quip.apps.ui.Button
                             text="Schedule"
                             primary={true}
@@ -138,7 +124,9 @@ class Day extends Component {
         });
 
         let prettyDay = <div onClick={() => this.props.openDatePicker(this.props.day.timestamp)}>
-            <p>Select date...</p>
+            <span>
+                {plusIcon()}
+            </span>
         </div>;
 
         let slotsBlock;
@@ -162,11 +150,14 @@ class Day extends Component {
                     <div className={Styles.header}>
                         {quiptext("Select a Time")}
                     </div>
-                    <div className={Styles.picker}>
-                        <label>Start Time</label>
-                        <input type="text" placeholder="HH:MM" value={this.state.startTimeInput} onChange={(event) => this.updateTimeHandler('start', event)} />
-                        <label>End Time</label>
-                        <input type="text" placeholder="HH:MM" value={this.state.endTimeInput} onChange={(event) => this.updateTimeHandler('end', event)} />
+                    <div className={Styles.picker} style={{minHeight: 'auto', padding: '20px 40px', alignItems: 'center'}}>
+                        <select className={Styles.DialogInput} placeholder="HH:MM" value={this.state.startTime} onChange={(event) => this.updateTimeHandler('start', event)}>
+                            {hours.map(hour => <option key={hour.value} value={hour.value}>{hour.label}</option>)}
+                        </select>
+                        <span style={{padding: '0 20px'}}>to</span>
+                        <select className={Styles.DialogInput} placeholder="HH:MM" value={this.state.endTime} onChange={(event) => this.updateTimeHandler('end', event)}>
+                        {hours.filter(hour => hour.value > this.state.startTime).map(hour => <option key={hour.value} value={hour.value}>{hour.label}</option>)}
+                        </select>
                     </div>
                     <div className={Styles.actions}>
                         <quip.apps.ui.Button
@@ -189,14 +180,13 @@ class Day extends Component {
                 onClick={() => this.props.deleteDate(dayConfiguration.timestamp)} />;
         }
     
-        return <div>
-            {prettyDay}
-            {/* <button onClick={() => { this.props.onDelete(dayConfiguration.number) }}>Remove</button> */}
-            {slotsBlock}
-            {datePicker}
-            {newSlotPicker}
-            {deleteButton}
-        </div>;
+        return <div className={Styles.DayColumnWrapper}>
+                {prettyDay}
+                {slotsBlock}
+                {datePicker}
+                {newSlotPicker}
+                {deleteButton}
+            </div>;
     }
     
 };
