@@ -13,6 +13,14 @@ class Day extends Component {
         newSlotPicker: false,
         startTime: null,
         endTime: null,
+        pendingPulse: false,
+        pulsing: false
+    }
+
+    componentDidMount() {
+        if (this.props.day.timeslots.length == 0 && this.props.day.timestamp > 0) {
+            this.setState({ pendingPulse: true });
+        }
     }
 
     showNewSlotPickerHandler = () => {
@@ -25,6 +33,16 @@ class Day extends Component {
             startTime: startOfHour.valueOf(),
             endTime: endTime.valueOf()
         });
+    }
+
+    dismissDatePicker = () => {
+        this.props.dismissDatePicker(this.props.day.timestamp);
+        if (this.state.pendingPulse) {
+            this.setState({
+                pendingPulse: false,
+                pulsing: true
+            });
+        }
     }
 
     dismissNewSlotPicker = () => {
@@ -90,7 +108,7 @@ class Day extends Component {
 
         let datePicker;
         if (dayConfiguration.configuring) {
-            datePicker = <Dialog onDismiss={() => this.props.dismissDatePicker(this.props.day.timestamp)} showBackdrop>
+            datePicker = <Dialog onDismiss={this.dismissDatePicker} showBackdrop>
                 <div className={Styles.dialog}>
                     <div className={Styles.header}>
                         {quiptext("Pick a Date")}
@@ -192,11 +210,14 @@ class Day extends Component {
         const styles = [
             Styles.DayColumnWrapper
         ];
-
         let slotButton;
+
         if (dayConfiguration.timestamp == 0) {
             styles.push(Styles.EmptyDay);
         } else {
+            if (this.state.pulsing) {
+                styles.push(Styles.AnimateColumn);
+            }
             slotButton = <div style={{backgroundColor: quip.apps.ui.ColorMap.BLUE.VALUE}} onClick={this.showNewSlotPickerHandler} className={Styles.BottomButton}>
                 <Icon type="add" color="#FFFFFF" width={20} height={20} />
             </div>;
