@@ -11,6 +11,25 @@ class Slot extends Component {
         quip.apps.addEventListener(quip.apps.EventType.DOCUMENT_MEMBERS_LOADED, () => {
             this.props.updateSlot();
         });
+
+        // Start listening for remote updates/changes
+        const responses = this.props.slot.get('responses');
+        if (responses) {
+            responses.listen(this.remoteUpdateHandler);
+        }
+    }
+
+    componentWillUnmount() {
+        // Stop listening for remote updates/changes
+        const responses = this.props.slot.get('responses');
+        if (responses) {
+            responses.unlisten(this.remoteUpdateHandler);
+        }
+    }
+
+    remoteUpdateHandler = () => {
+        console.log('Slot update!');
+        this.props.updateSlot();
     }
 
     setResponseHandler = () => {

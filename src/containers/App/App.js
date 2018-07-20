@@ -17,6 +17,29 @@ export default class App extends Component {
         this.setState({
             record: this.props.record
         });
+
+        // Start listening for updates from other users/devices
+        this.props.record.listen(this.remoteUpdateHandler);
+
+        const timeslots = this.props.record.get('timeSlots');
+        if (timeslots) {
+            timeslots.listen(this.remoteUpdateHandler);
+        }
+    }
+
+    componentWillUnmount() {
+        // Stop listening for updates from other users/devices
+        this.props.record.unlisten(this.remoteUpdateHandler);
+
+        const timeslots = this.props.record.get('timeSlots');
+        if (timeslots) {
+            timeslots.listen(this.remoteUpdateHandler);
+        }
+    }
+
+    remoteUpdateHandler = () => {
+        console.log('Remote update!');
+        this.updateDates();
     }
 
     updateDates() {
