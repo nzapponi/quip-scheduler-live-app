@@ -1,13 +1,15 @@
-.DayColumn {
-    border: 1px solid #acacac;
-    width: 100%;
-    height: 300px;
-}
-
 @blueColor: #29b6f2;
 @lighGreyColor: #bbb;
 @borderColor: #ddd;
 @secondaryTextColor: #858585;
+
+.DayColumn {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
 
 .DialogInput {
     width: 120px;
@@ -23,6 +25,43 @@
     border-radius: 10px;
     width: 200px;
     margin-right: 5px;
+    min-height: 400px;
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.EmptyDay {
+    width: 130px;
+    cursor: pointer;
+}
+
+.DayNumber {
+    font-size: 32px;
+    color: #666666;
+    text-align: center;
+    font-weight: lighter;
+}
+
+.DayDetails {
+    text-align: center;
+    color: #ADADAD;
+    text-transform: uppercase;
+}
+
+.AddSlotButton {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border-radius: 40px;
+    background-color: #2AB6F3;
+    color: white;
+    bottom: -20px;
+    left: 50%;
+    margin-left: -20px;
+    text-align: center;
+    font-size: 30px;
+    line-height: 40px;
+    cursor: pointer;
 }
 
 /* Copyright 2017 Quip */

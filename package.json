@@ -9,11 +9,10 @@
     },
     "author": "",
     "devDependencies": {
-        "quip-apps-webpack-config": ">=0.0.29",
-        "svg-react-loader": "^0.4.5"
+        "quip-apps-webpack-config": ">=0.0.29"
     },
     "dependencies": {
-        "moment": "^2.22.2",
-        "react-fontawesome": "^1.6.1"
+        "@salesforce-ux/design-system": "^2.6.2",
+        "moment": "^2.22.2"
     }
 }

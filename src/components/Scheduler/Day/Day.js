@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
 import moment from 'moment';
-import FontAwesome from 'react-fontawesome';
 
 import Slot from './Slot/Slot';
 import Dialog from '../../dialog/dialog';
 
 import Styles from './Day.less';
-import plusIcon from './plus-solid.svg';
+import sldsSymbols from '@salesforce-ux/design-system/assets/icons/utility-sprite/svg/symbols.svg';
 
 class Day extends Component {
 
@@ -123,22 +122,25 @@ class Day extends Component {
             return <Slot key={key} startOfDay={dayConfiguration.timestamp} slot={slot} deleteTimeslot={this.props.deleteTimeslot} updateSlot={this.updateSlotHandler} />;
         });
 
-        let prettyDay = <div onClick={() => this.props.openDatePicker(this.props.day.timestamp)}>
-            <span>
-                {plusIcon()}
-            </span>
+        let prettyDay = <div onClick={() => this.props.openDatePicker(this.props.day.timestamp)} style={{display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%'}}>
+            <div style={{color: '#ADADAD', textTransform: 'uppercase', padding: '0 5px', textAlign: 'center'}}>
+                {/* <svg>
+                    <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref={sldsSymbols + '#add'} />
+                </svg> */}
+                Pick a date
+            </div>
         </div>;
 
         let slotsBlock;
 
         if (this.props.day.timestamp > 0) {
             const momentTime = moment(this.props.day.timestamp);
-            prettyDay = <div>
-                <p>{momentTime.format('ddd')}</p>
-                <p>{momentTime.format('D')}</p>
+            prettyDay = <div style={{padding: '15px 10px'}}>
+                <div className={Styles.DayNumber}>{momentTime.format('D')}</div>
+                <div className={Styles.DayDetails}>{momentTime.format('MMM')} &#183; {momentTime.format('ddd')}</div>
             </div>;
 
-            slotsBlock = <div className={Styles.DayColumn} onClick={this.showNewSlotPickerHandler}>
+            slotsBlock = <div className={Styles.DayColumn}>
                 {slots}
             </div>;
         }
@@ -179,14 +181,28 @@ class Day extends Component {
                 text={quiptext("Delete day")}
                 onClick={() => this.props.deleteDate(dayConfiguration.timestamp)} />;
         }
-    
-        return <div className={Styles.DayColumnWrapper}>
-                {prettyDay}
-                {slotsBlock}
-                {datePicker}
-                {newSlotPicker}
-                {deleteButton}
+
+        const styles = [
+            Styles.DayColumnWrapper
+        ];
+
+        let slotButton;
+        if (dayConfiguration.timestamp == 0) {
+            styles.push(Styles.EmptyDay);
+        } else {
+            slotButton = <div onClick={this.showNewSlotPickerHandler} className={Styles.AddSlotButton}>
+                +
             </div>;
+        }
+    
+        return <div className={styles.join(' ')}>
+            {prettyDay}
+            {slotsBlock}
+            {datePicker}
+            {newSlotPicker}
+            {slotButton}
+            {deleteButton}
+        </div>;
     }
     
 };
