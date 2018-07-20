@@ -73,9 +73,15 @@ export default class App extends Component {
             }
         }
 
+        // Check if there are any empty dates locally
+        // These are dates we're currently working on and shouldn't be deleted
+        const emptyDates = this.state.dates.filter(date => date.timeslots.length == 0 && date.timestamp > 0);
+        days.push(...emptyDates);
+        
         days.sort((dateA, dateB) => {
             return dateA.timestamp - dateB.timestamp;
         });
+
 
         if (days.length == 0) {
             days.push({
@@ -90,7 +96,6 @@ export default class App extends Component {
                 timeslots: []
             });
         }
-
 
         this.setState({
             dates: days
