@@ -113,14 +113,19 @@ class Day extends Component {
             </Dialog>;
         }
 
-        let slots = dayConfiguration.timeslots.sort((slotA, slotB) => {
-            const timeA = slotA.get('startTime');
-            const timeB = slotB.get('startTime');
-            return timeA - timeB;
-        }).map((slot) => {
-            const key = slot.get('startTime') + '-' + slot.get('endTime');
-            return <Slot key={key} startOfDay={dayConfiguration.timestamp} slot={slot} deleteTimeslot={this.props.deleteTimeslot} updateSlot={this.updateSlotHandler} />;
-        });
+        let slots = <div style={{color: quip.apps.ui.ColorMap.BLUE.VALUE, padding: '0px 20px', cursor: 'pointer'}} onClick={this.showNewSlotPickerHandler}>Start by adding a new time slot!</div>;
+
+        if (dayConfiguration.timeslots.length > 0) {
+            slots = dayConfiguration.timeslots.sort((slotA, slotB) => {
+                const timeA = slotA.get('startTime');
+                const timeB = slotB.get('startTime');
+                return timeA - timeB;
+            }).map((slot) => {
+                const key = slot.get('startTime') + '-' + slot.get('endTime');
+                return <Slot key={key} startOfDay={dayConfiguration.timestamp} slot={slot} deleteTimeslot={this.props.deleteTimeslot} updateSlot={this.updateSlotHandler} />;
+            });
+        }
+
 
         let prettyDay = <div onClick={() => this.props.openDatePicker(this.props.day.timestamp)} style={{display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%'}}>
             <div style={{color: '#ADADAD', textTransform: 'uppercase', padding: '0 5px', textAlign: 'center'}}>
@@ -137,7 +142,12 @@ class Day extends Component {
                 <div className={Styles.DayDetails}>{momentTime.format('MMM')} &#183; {momentTime.format('ddd')}</div>
             </div>;
 
-            slotsBlock = <div className={Styles.DayColumn}>
+            let slotsBlockStyle = Styles.DayColumn;
+            if (dayConfiguration.timeslots.length == 0) {
+                slotsBlockStyle = Styles.NewDayColumn;
+            }
+
+            slotsBlock = <div className={slotsBlockStyle}>
                 {slots}
             </div>;
         }

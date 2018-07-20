@@ -37,8 +37,8 @@ export default class App extends Component {
         }
     }
 
-    remoteUpdateHandler = () => {
-        console.log('Remote update!');
+    remoteUpdateHandler = (newRecord) => {
+        console.log('Remote update!', newRecord);
         this.updateDates();
     }
 
@@ -77,11 +77,20 @@ export default class App extends Component {
             return dateA.timestamp - dateB.timestamp;
         });
 
-        days.push({
-            timestamp: 0,
-            configuring: false,
-            timeslots: []
-        });
+        if (days.length == 0) {
+            days.push({
+                timestamp: 0,
+                configuring: true,
+                timeslots: []
+            });
+        } else {
+            days.push({
+                timestamp: 0,
+                configuring: false,
+                timeslots: []
+            });
+        }
+
 
         this.setState({
             dates: days
