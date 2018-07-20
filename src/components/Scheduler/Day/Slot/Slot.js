@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import moment from 'moment';
 
+import Icon from '../../../Icon/Icon';
+
 import Styles from './Slot.less';
 
 class Slot extends Component {
@@ -38,6 +40,10 @@ class Slot extends Component {
         }
 
         this.props.updateSlot();
+    }
+
+    updateNode = (node) => {
+        this.props.slot.setDom(node);
     }
 
     render() {
@@ -90,7 +96,6 @@ class Slot extends Component {
         }
 
         let docMembers = quip.apps.getDocumentMembers();
-        console.log(docMembers);
 
         let height = 0;
         let heightStyles = [Styles.HeightBox];
@@ -100,10 +105,12 @@ class Slot extends Component {
                 heightStyles.push(Styles.OneHundredPercent);
             }
         }
-
-        console.log(height);
     
-        return <div className={styles.join(' ')} onClick={this.setResponseHandler}>
+        return <div
+            className={styles.join(' ')}
+            style={{borderColor: accepted ? quip.apps.ui.ColorMap.GREEN.VALUE : null}}
+            onClick={this.setResponseHandler}
+            ref={this.updateNode}>
             <div style={{zIndex: '10'}}>
                 <div style={{color: '#494949', fontSize: '18px'}}>{startTime.format('LT')}</div>
                 <div style={{color: '#7D7D7D', fontSize: '14px'}}>{endTime.format('LT')}</div>
@@ -113,14 +120,18 @@ class Slot extends Component {
                     event.stopPropagation();
                     this.props.deleteTimeslot(this.props.startOfDay, this.props.slot);
                 }}
-                style={{zIndex: '10', position: 'absolute', top: '7px', right: '10px', cursor: 'pointer', color: '#7D7D7D'}}>
-                X
+                style={{zIndex: '10', position: 'absolute', top: '7px', right: '10px', cursor: 'pointer'}}>
+                <Icon type="close" width={18} height={18} color="#7D7D7D" />
             </div>
-            <div style={{alignSelf: 'flex-end', zIndex: '10'}}>
-                <div style={{fontWeight: 'bold', color: '#494949'}}>{acceptedResponses.length}</div>
+            <div className={Styles.AnswersBox}>
+                <Icon type="user" width={18} height={18} color={accepted ? quip.apps.ui.ColorMap.GREEN.VALUE : '#494949'} />
+                <div style={{fontWeight: 'bold', color: accepted ? quip.apps.ui.ColorMap.GREEN.VALUE : '#494949'}}>{acceptedResponses.length}</div>
             </div>
 
-            <div className={heightStyles.join(' ')} style={{height: height + '%'}}></div>
+            <div style={{zIndex: '10', position: 'absolute', bottom: '7px', left: '10px'}} onClick={(e) => e.stopPropagation()}>
+                <quip.apps.ui.CommentsTrigger record={slot} color="GREEN" showEmpty />
+            </div>
+            <div className={heightStyles.join(' ')} style={{height: height + '%', backgroundColor: quip.apps.ui.ColorMap.GREEN.VALUE_LIGHT}}></div>
 
             {/* {profilePictures} */}
         </div>;

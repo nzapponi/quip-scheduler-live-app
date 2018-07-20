@@ -34,6 +34,14 @@ export class Timeslot extends quip.apps.Record {
     supportsComments() {
         return true;
     }
+
+    getDom() {
+        return this.node || null;
+    }
+
+    setDom(node) {
+        this.node = node;
+    }
 }
 
 export class Response extends quip.apps.Record {

@@ -8,6 +8,7 @@
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
+    padding-bottom: 5px;
 }
 
 
@@ -20,7 +21,7 @@
 }
 
 .DayColumnWrapper {
-    background: #FFFFFF;
+    background-color: #FFFFFF;
     border: 2px solid #DDDDDD;
     border-radius: 10px;
     width: 200px;
@@ -28,6 +29,10 @@
     min-height: 400px;
     position: relative;
     margin-bottom: 20px;
+}
+
+.AnimateColumn {
+    animation: pulse 1s forwards;
 }
 
 .EmptyDay {
@@ -48,59 +53,27 @@
     text-transform: uppercase;
 }
 
-.AddSlotButton {
+.BottomButtons {
     position: absolute;
+    height: 40px;
+    width: 100%;
+    bottom: -20px;
+    left: 0;
+    display: flex;
+    justify-content: center;
+}
+
+.BottomButton {
     width: 40px;
     height: 40px;
     border-radius: 40px;
-    background-color: #2AB6F3;
-    color: white;
-    bottom: -20px;
-    left: 50%;
-    margin-left: -20px;
-    text-align: center;
-    font-size: 30px;
-    line-height: 40px;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    margin: 0 10px;
 }
-
-/* Copyright 2017 Quip */
-// .MyButton {
-//     display: inline-block;
-//     position: relative;
-//     margin: 1px 0;
-//     padding-right: 10px;
-//     padding-left: 10px;
-//     height: 28px;
-//     font-size: 14px;
-//     font-weight: 700;
-//     border: 1px solid rgba(0,0,0,.11);
-//     border-radius: 5px;
-//     -ms-user-select: none;
-//     -webkit-user-select: none;
-//     user-select: none;
-//     cursor: pointer;
-//     white-space: nowrap;
-//     overflow: hidden;
-//     text-overflow: ellipsis;
-//     max-width: 200px;
-//     color: #fff;
-//     fill: #fff;
-//     background-color: #29b6f2;
-//     border-color: #29b6f2;
-// }
-
-// button:active:not(:disabled), input[type=button]:active:not(:disabled), input[type=submit]:active:not(:disabled) {
-//     background-color: #29b6f2;
-//     color: #fff;
-// }
-
-// .MyButton:disabled {
-//     color: #fff;
-//     fill: #fff;
-//     border-color: #29b6f2;
-//     border-radius: 5px;
-// }
 
 .dialog {
     display: flex;
@@ -156,5 +129,15 @@
     margin-bottom: 15px;
     margin-left: 15px;
     margin-right: 15px;
+}
+
+@keyframes pulse {
+    0% {
+        background-color: #EBF8FE;
+    }
+
+    100% {
+        background-color: #FFFFFF;
+    }
 }
 

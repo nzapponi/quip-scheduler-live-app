@@ -88,10 +88,6 @@ module.exports = {
                 }),
             },
             {
-                test: /\.svg/,
-                use: "url-loader",
-            },
-            {
                 test: /\.png$/,
                 use: "url-loader"
             }

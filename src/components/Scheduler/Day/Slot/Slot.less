@@ -1,9 +1,9 @@
 .SlotBox {
     position: relative;
     margin: 5px 10px;
-    background-color: #F7F8FA;
+    background-color: #FCFDFF;
     padding: 5px 10px;
-    border: 1px solid #E8E8E8;
+    border: 2px solid #E8E8E8;
     border-radius: 5px;
     display: flex;
     height: 110px;
@@ -11,28 +11,39 @@
     cursor: pointer;
 
     &:hover {
-        box-shadow: 0 3px 5px -2px #CCCCCC;
+        box-shadow: 0 3px 8px -4px #EEEEEE;
     }
 }
 
 .Selected {
-    border: 1px solid #35D55C;
+    border: 2px solid #35D55C;
 }
 
 .ThirtyMin {
-    height: 55px;
+    height: 75px;
 }
 
 .HeightBox {
     position: absolute;
-    background-color: #CBFFD8;
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
     width: 100%;
     left: 0;
     bottom: 0;
+    transition: height 300ms ease-out;
 }
 
 .OneHundredPercent {
     border-radius: 5px;
+}
+
+.AnswersBox {
+    align-self: flex-end;
+    z-index: 10;
+    display: flex;
+
+    > svg {
+        padding: 2px;
+        margin-right: 2px;
+    }
 }

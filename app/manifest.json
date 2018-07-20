@@ -1,7 +1,7 @@
 {
     "id": "PCKAjASAzlK",
     "manifest_version": 1,
-    "name": "Meeting Scheduler",
+    "name": "Scheduler",
     "version_name": "1.0",
     "version_number": 1,
     "sizing_mode": "fit_content",

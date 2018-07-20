@@ -3,9 +3,9 @@ import moment from 'moment';
 
 import Slot from './Slot/Slot';
 import Dialog from '../../dialog/dialog';
+import Icon from '../../Icon/Icon';
 
 import Styles from './Day.less';
-import sldsSymbols from '@salesforce-ux/design-system/assets/icons/utility-sprite/svg/symbols.svg';
 
 class Day extends Component {
 
@@ -124,10 +124,7 @@ class Day extends Component {
 
         let prettyDay = <div onClick={() => this.props.openDatePicker(this.props.day.timestamp)} style={{display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%'}}>
             <div style={{color: '#ADADAD', textTransform: 'uppercase', padding: '0 5px', textAlign: 'center'}}>
-                {/* <svg>
-                    <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref={sldsSymbols + '#add'} />
-                </svg> */}
-                Pick a date
+                <Icon type="add" color="#EFEFEF" width={50} height={50} />
             </div>
         </div>;
 
@@ -152,7 +149,7 @@ class Day extends Component {
                     <div className={Styles.header}>
                         {quiptext("Select a Time")}
                     </div>
-                    <div className={Styles.picker} style={{minHeight: 'auto', padding: '20px 40px', alignItems: 'center'}}>
+                    <div className={Styles.picker} style={{minHeight: 'auto', padding: '0px 40px 20px 40px', alignItems: 'center'}}>
                         <select className={Styles.DialogInput} placeholder="HH:MM" value={this.state.startTime} onChange={(event) => this.updateTimeHandler('start', event)}>
                             {hours.map(hour => <option key={hour.value} value={hour.value}>{hour.label}</option>)}
                         </select>
@@ -177,9 +174,9 @@ class Day extends Component {
 
         let deleteButton;
         if (dayConfiguration.timestamp != 0 && dayConfiguration.timeslots.length == 0) {
-            deleteButton = <quip.apps.ui.Button
-                text={quiptext("Delete day")}
-                onClick={() => this.props.deleteDate(dayConfiguration.timestamp)} />;
+            deleteButton = <div style={{backgroundColor: quip.apps.ui.ColorMap.RED.VALUE}} onClick={() => this.props.deleteDate(dayConfiguration.timestamp)} className={Styles.BottomButton}>
+                <Icon type="close" color="#FFFFFF" width={20} height={20} />
+            </div>;
         }
 
         const styles = [
@@ -190,8 +187,8 @@ class Day extends Component {
         if (dayConfiguration.timestamp == 0) {
             styles.push(Styles.EmptyDay);
         } else {
-            slotButton = <div onClick={this.showNewSlotPickerHandler} className={Styles.AddSlotButton}>
-                +
+            slotButton = <div style={{backgroundColor: quip.apps.ui.ColorMap.BLUE.VALUE}} onClick={this.showNewSlotPickerHandler} className={Styles.BottomButton}>
+                <Icon type="add" color="#FFFFFF" width={20} height={20} />
             </div>;
         }
     
@@ -200,8 +197,10 @@ class Day extends Component {
             {slotsBlock}
             {datePicker}
             {newSlotPicker}
-            {slotButton}
-            {deleteButton}
+            <div className={Styles.BottomButtons}>
+                {deleteButton}
+                {slotButton}
+            </div>
         </div>;
     }
     
