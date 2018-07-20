@@ -2,10 +2,15 @@ import React, { Component } from 'react';
 import moment from 'moment';
 
 import Icon from '../../../Icon/Icon';
+import Dialog from '../../../dialog/dialog';
 
 import Styles from './Slot.less';
 
 class Slot extends Component {
+
+    state = {
+        isDeleting: false
+    }
 
     componentDidMount() {
         quip.apps.addEventListener(quip.apps.EventType.DOCUMENT_MEMBERS_LOADED, () => {
@@ -28,7 +33,6 @@ class Slot extends Component {
     }
 
     remoteUpdateHandler = () => {
-        console.log('Slot update!');
         this.props.updateSlot();
     }
 
@@ -63,6 +67,23 @@ class Slot extends Component {
 
     updateNode = (node) => {
         this.props.slot.setDom(node);
+    }
+
+    dismissDialog = (e) => {
+        if (e) {
+            e.stopPropagation();
+        }
+        this.setState({isDeleting: false});
+    }
+
+    deleteSlot = (e) => {
+        e.stopPropagation();
+        this.props.deleteTimeslot(this.props.startOfDay, this.props.slot);
+    }
+
+    openDialog = (e) => {
+        e.stopPropagation();
+        this.setState({ isDeleting: true });
     }
 
     render() {
@@ -106,6 +127,30 @@ class Slot extends Component {
             }
         });
 
+        let deletingDialog;
+        if (this.state.isDeleting) {
+            deletingDialog = <Dialog onDismiss={this.dismissDialog}>
+                <div className={Styles.dialog}>
+                    <div className={Styles.header}>
+                        {quiptext("Delete Time Slot")}
+                    </div>
+                    <div className={Styles.picker} style={{minHeight: 'auto', padding: '0px 40px 20px 40px', alignItems: 'center'}}>
+                        Are you sure you want to delete the time slot?<br />
+                        All responses will be lost.
+                    </div>
+                    <div className={Styles.actions}>
+                        <quip.apps.ui.Button
+                            text={quiptext("Cancel")}
+                            onClick={this.dismissDialog}/>
+                        <quip.apps.ui.Button
+                            primary={true}
+                            text={quiptext("Delete")}
+                            onClick={this.deleteSlot}/>
+                    </div>
+                </div>
+            </Dialog>;
+        }
+
         const styles = [Styles.SlotBox];
         if (accepted) {
             styles.push(Styles.Selected);
@@ -135,10 +180,7 @@ class Slot extends Component {
                 <div style={{color: '#7D7D7D', fontSize: '14px'}}>{endTime.format('LT')}</div>
             </div>
             <div
-                onClick={(event) => {
-                    event.stopPropagation();
-                    this.props.deleteTimeslot(this.props.startOfDay, this.props.slot);
-                }}
+                onClick={this.openDialog}
                 style={{zIndex: '10', position: 'absolute', top: '7px', right: '10px', cursor: 'pointer'}}>
                 <Icon type="close" width={18} height={18} color="#7D7D7D" />
             </div>
@@ -153,6 +195,7 @@ class Slot extends Component {
             <div className={heightStyles.join(' ')} style={{height: height + '%', backgroundColor: quip.apps.ui.ColorMap.GREEN.VALUE_LIGHT}}></div>
 
             {/* {profilePictures} */}
+            {deletingDialog}
         </div>;
     }
 };

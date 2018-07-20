@@ -37,8 +37,7 @@ export default class App extends Component {
         }
     }
 
-    remoteUpdateHandler = (newRecord) => {
-        console.log('Remote update!', newRecord);
+    remoteUpdateHandler = () => {
         this.updateDates();
     }
 

@@ -1,3 +1,8 @@
+@blueColor: #29b6f2;
+@lighGreyColor: #bbb;
+@borderColor: #ddd;
+@secondaryTextColor: #858585;
+
 .SlotBox {
     position: relative;
     margin: 5px 10px;
@@ -46,4 +51,40 @@
         padding: 2px;
         margin-right: 2px;
     }
+}
+
+.dialog {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid @borderColor;
+    border-radius: 5px;
+}
+
+.header {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    color: #a4a4a4;
+    text-transform: uppercase;
+}
+
+.picker {
+    display: flex;
+    flex-direction: row;
+    // border-top: 1px solid @borderColor;
+    // border-bottom: 1px solid @borderColor;
+    min-height: 80px;
+    min-width: 400px;
+}
+
+.actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 40px;
+    margin-right: 5px;
+    > :not(:first-child) {
+        margin-left: 5px;
+    }
+    padding-bottom: 10px;
 }
