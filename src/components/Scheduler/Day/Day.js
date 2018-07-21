@@ -16,8 +16,8 @@ class Day extends Component {
         newSlotError: null,
         pendingPulse: false,
         pulsing: false,
-        newSelectedDate: null,
-        newDateError: null
+        newSelectedDate: this.props.validateDate(moment().startOf('day').valueOf()) ? null : moment().startOf('day').valueOf(),
+        newDateError: this.props.validateDate(moment().startOf('day').valueOf()) ? 'This date is already selected' : null
     }
 
     componentDidMount() {
