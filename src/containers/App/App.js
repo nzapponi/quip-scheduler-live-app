@@ -43,6 +43,8 @@ export default class App extends Component {
 
     updateDates() {
         // Calculate days
+        const editable = quip.apps.isDocumentEditable() && quip.apps.getViewingUser();
+
         let timeslots = [];
         if (this.props.record.has('timeSlots')) {
             timeslots = this.props.record.get('timeSlots').getRecords();
@@ -81,19 +83,20 @@ export default class App extends Component {
             return dateA.timestamp - dateB.timestamp;
         });
 
-
-        if (days.length == 0) {
-            days.push({
-                timestamp: 0,
-                configuring: true,
-                timeslots: []
-            });
-        } else {
-            days.push({
-                timestamp: 0,
-                configuring: false,
-                timeslots: []
-            });
+        if (editable) {
+            if (days.length == 0) {
+                days.push({
+                    timestamp: 0,
+                    configuring: true,
+                    timeslots: []
+                });
+            } else {
+                days.push({
+                    timestamp: 0,
+                    configuring: false,
+                    timeslots: []
+                });
+            }
         }
 
         this.setState({

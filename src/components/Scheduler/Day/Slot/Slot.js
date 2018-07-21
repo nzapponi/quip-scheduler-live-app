@@ -44,30 +44,35 @@ class Slot extends Component {
         if (slot.has('responses')) {
             responses = slot.get('responses').getRecords();
         }
-    
-        const myResponse = responses.find(response => {
-            const userId = response.get('userId');
-            return userId == quip.apps.getViewingUser().getId();
-        });
 
-        if (myResponse) {
-            const currentResponse = myResponse.get('type');
-            if (currentResponse == 'yes') {
-                myResponse.set('type', 'no');
-                quip.apps.sendMessage(`rejected the slot on ${moment(this.props.slot.get('startTime')).format('LLL')} - ${moment(this.props.slot.get('endTime')).format('LT Z')}.`);
+        const me = quip.apps.getViewingUser();
+
+        if (me) {
+            const myResponse = responses.find(response => {
+                const userId = response.get('userId');
+                return userId == me.getId();
+            });
+    
+            if (myResponse) {
+                const currentResponse = myResponse.get('type');
+                if (currentResponse == 'yes') {
+                    myResponse.set('type', 'no');
+                    quip.apps.sendMessage(`rejected the slot on ${moment(this.props.slot.get('startTime')).format('LLL')} - ${moment(this.props.slot.get('endTime')).format('LT Z')}.`);
+                } else {
+                    myResponse.set('type', 'yes');
+                    quip.apps.sendMessage(`accepted the slot on ${moment(this.props.slot.get('startTime')).format('LLL')} - ${moment(this.props.slot.get('endTime')).format('LT Z')}.`);
+                }
             } else {
-                myResponse.set('type', 'yes');
+                slot.get('responses').add({
+                    userId: me.getId(),
+                    type: 'yes'
+                });
                 quip.apps.sendMessage(`accepted the slot on ${moment(this.props.slot.get('startTime')).format('LLL')} - ${moment(this.props.slot.get('endTime')).format('LT Z')}.`);
             }
-        } else {
-            slot.get('responses').add({
-                userId: quip.apps.getViewingUser().getId(),
-                type: 'yes'
-            });
-            quip.apps.sendMessage(`accepted the slot on ${moment(this.props.slot.get('startTime')).format('LLL')} - ${moment(this.props.slot.get('endTime')).format('LT Z')}.`);
+    
+            this.props.updateSlot();
         }
-
-        this.props.updateSlot();
+    
     }
 
     updateNode = (node) => {
@@ -104,9 +109,11 @@ class Slot extends Component {
 
     render() {
         const slot = this.props.slot;
-    
         const startTime = moment(slot.get('startTime'));
         const endTime = moment(slot.get('endTime'));
+        const me = quip.apps.getViewingUser();
+        const editable = quip.apps.isDocumentEditable() && quip.apps.getViewingUser();
+
         let responses = [];
         if (slot.has('responses')) {
             responses = slot.get('responses').getRecords();
@@ -114,7 +121,11 @@ class Slot extends Component {
     
         const myResponse = responses.find(response => {
             const userId = response.get('userId');
-            return userId == quip.apps.getViewingUser().getId();
+            if (me) {
+                return userId == me.getId();
+            } else {
+                return false;
+            }
         });
     
         let accepted = false;
@@ -127,59 +138,60 @@ class Slot extends Component {
             return type == 'yes';
         });
 
-        let profilePictures, tooltip;
-        if (this.state.tooltipOpen) {
-            profilePictures = acceptedResponses.map(response => {
-                const userId = response.get('userId');
-                const user = quip.apps.getUserById(userId);
-                
-                if (user) {
-                    const userName = user.getName();
-                    return <div title={userName}>
-                        <quip.apps.ui.ProfilePicture
-                        key={userId}
-                        user={user}
-                        size={35}
-                        round
-                        />
-                    </div>;
-                } else {
-                    return null;
+        let profilePictures, tooltip, deletingDialog;
+        if (editable) {
+            if (this.state.tooltipOpen) {
+                profilePictures = acceptedResponses.map(response => {
+                    const userId = response.get('userId');
+                    const user = quip.apps.getUserById(userId);
+                    
+                    if (user) {
+                        const userName = user.getName();
+                        return <div title={userName}>
+                            <quip.apps.ui.ProfilePicture
+                            key={userId}
+                            user={user}
+                            size={35}
+                            round
+                            />
+                        </div>;
+                    } else {
+                        return null;
+                    }
+                });
+    
+                if (profilePictures.length > 0) {
+                    tooltip = <Tooltip onBlur={() => this.toggleTooltip(null, false)}>
+                        <div className={Styles.ProfilePicturesBox} onClick={e => e.stopPropagation()}>
+                            {profilePictures}
+                        </div>
+                    </Tooltip>;
                 }
-            });
-
-            if (profilePictures.length > 0) {
-                tooltip = <Tooltip onBlur={() => this.toggleTooltip(null, false)}>
-                    <div className={Styles.ProfilePicturesBox} onClick={e => e.stopPropagation()}>
-                        {profilePictures}
-                    </div>
-                </Tooltip>;
+    
             }
-
-        }
-
-        let deletingDialog;
-        if (this.state.isDeleting) {
-            deletingDialog = <Dialog onDismiss={this.dismissDialog}>
-                <div className={Styles.dialog}>
-                    <div className={Styles.header}>
-                        {quiptext("Delete Time Slot")}
+            
+            if (this.state.isDeleting) {
+                deletingDialog = <Dialog onDismiss={this.dismissDialog}>
+                    <div className={Styles.dialog}>
+                        <div className={Styles.header}>
+                            {quiptext("Delete Time Slot")}
+                        </div>
+                        <div className={Styles.picker} style={{minHeight: 'auto', padding: '0px 40px 20px 40px', alignItems: 'center'}}>
+                            Are you sure you want to delete the time slot?<br />
+                            All responses will be lost.
+                        </div>
+                        <div className={Styles.actions}>
+                            <quip.apps.ui.Button
+                                text={quiptext("Cancel")}
+                                onClick={this.dismissDialog}/>
+                            <quip.apps.ui.Button
+                                primary={true}
+                                text={quiptext("Delete")}
+                                onClick={this.deleteSlot}/>
+                        </div>
                     </div>
-                    <div className={Styles.picker} style={{minHeight: 'auto', padding: '0px 40px 20px 40px', alignItems: 'center'}}>
-                        Are you sure you want to delete the time slot?<br />
-                        All responses will be lost.
-                    </div>
-                    <div className={Styles.actions}>
-                        <quip.apps.ui.Button
-                            text={quiptext("Cancel")}
-                            onClick={this.dismissDialog}/>
-                        <quip.apps.ui.Button
-                            primary={true}
-                            text={quiptext("Delete")}
-                            onClick={this.deleteSlot}/>
-                    </div>
-                </div>
-            </Dialog>;
+                </Dialog>;
+            }
         }
 
         const styles = [Styles.SlotBox];
@@ -210,11 +222,11 @@ class Slot extends Component {
                 <div style={{color: '#494949', fontSize: '18px'}}>{startTime.format('LT')}</div>
                 <div style={{color: '#7D7D7D', fontSize: '14px'}}>{endTime.format('LT')}</div>
             </div>
-            <div
+            {editable ? <div
                 onClick={this.openDialog}
                 style={{zIndex: '10', position: 'absolute', top: '7px', right: '10px', cursor: 'pointer'}}>
                 <Icon type="close" width={18} height={18} color="#7D7D7D" />
-            </div>
+            </div> : null}
             <div className={[Styles.AnswersBox, accepted ? Styles.AnswersBoxGreen : null].join(' ')} onClick={this.toggleTooltip}>
                 <Icon type="user" width={18} height={18} color={accepted ? quip.apps.ui.ColorMap.GREEN.VALUE : '#494949'} />
                 <div style={{fontWeight: 'bold', color: accepted ? quip.apps.ui.ColorMap.GREEN.VALUE : '#494949'}}>{acceptedResponses.length}</div>
@@ -225,8 +237,8 @@ class Slot extends Component {
             </div>
             <div className={heightStyles.join(' ')} style={{height: height + '%', backgroundColor: quip.apps.ui.ColorMap.GREEN.VALUE_LIGHT}}></div>
 
-            {tooltip}
-            {deletingDialog}
+            {editable ? tooltip : null}
+            {editable ? deletingDialog : null}
         </div>;
     }
 };

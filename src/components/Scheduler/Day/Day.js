@@ -139,6 +139,7 @@ class Day extends Component {
 
     render() {
         const dayConfiguration = this.props.day;
+        const editable = quip.apps.isDocumentEditable() && quip.apps.getViewingUser();
 
         let time = moment(dayConfiguration.timestamp).startOf('day');
 
@@ -154,7 +155,7 @@ class Day extends Component {
         }
 
         let datePicker;
-        if (dayConfiguration.configuring) {
+        if (editable && dayConfiguration.configuring) {
             datePicker = <Dialog onDismiss={this.dismissDatePicker} showBackdrop>
                 <div className={Styles.dialog}>
                     <div className={Styles.header}>
@@ -223,7 +224,7 @@ class Day extends Component {
         }
 
         let newSlotPicker;
-        if (this.state.newSlotPicker) {
+        if (editable && this.state.newSlotPicker) {
             newSlotPicker = <Dialog onDismiss={this.dismissNewSlotPicker}>
                 <div className={Styles.dialog}>
                     <div className={Styles.header}>
@@ -254,7 +255,7 @@ class Day extends Component {
         }
 
         let deleteButton;
-        if (dayConfiguration.timestamp != 0 && dayConfiguration.timeslots.length == 0) {
+        if (editable && dayConfiguration.timestamp != 0 && dayConfiguration.timeslots.length == 0) {
             deleteButton = <div style={{backgroundColor: quip.apps.ui.ColorMap.RED.VALUE}} onClick={() => this.props.deleteDate(dayConfiguration.timestamp)} className={Styles.BottomButton}>
                 <Icon type="close" color="#FFFFFF" width={20} height={20} />
             </div>;
@@ -285,13 +286,13 @@ class Day extends Component {
             <div className={styles.join(' ')}>
                 {prettyDay}
                 {slotsBlock}
-                <div className={Styles.BottomButtons}>
+                {editable ? <div className={Styles.BottomButtons}>
                     {deleteButton}
                     {slotButton}
-                </div>
+                </div> : null }
             </div>
-            {datePicker}
-            {newSlotPicker}
+            {editable ? datePicker : null}
+            {editable ? newSlotPicker : null}
         </div>;
     }
     
