@@ -192,7 +192,6 @@ class Day extends Component {
                             onClick={this.dismissNewSlotPicker}/>
                         <quip.apps.ui.Button
                             primary={true}
-                            // disabled={selectedObjectId === null}
                             text={quiptext("Save")}
                             onClick={this.createSlotHandler}/>
                     </div>
@@ -218,8 +217,13 @@ class Day extends Component {
             if (this.state.pulsing) {
                 styles.push(Styles.AnimateColumn);
             }
-            slotButton = <div style={{backgroundColor: quip.apps.ui.ColorMap.BLUE.VALUE}} onClick={this.showNewSlotPickerHandler} className={Styles.BottomButton}>
-                <Icon type="add" color="#FFFFFF" width={20} height={20} />
+            slotButton = <div style={{position: 'relative'}}>
+                {dayConfiguration.timestamp > 0 && dayConfiguration.timeslots.length == 0 ? <div className={Styles.Arrow}>
+                    <Icon type="arrowdown" width={32} height={32} color={quip.apps.ui.ColorMap.BLUE.VALUE} />
+                </div> : null}
+                <div style={{backgroundColor: quip.apps.ui.ColorMap.BLUE.VALUE}} onClick={this.showNewSlotPickerHandler} className={Styles.BottomButton}>
+                    <Icon type="add" color="#FFFFFF" width={20} height={20} />
+                </div>
             </div>;
         }
     

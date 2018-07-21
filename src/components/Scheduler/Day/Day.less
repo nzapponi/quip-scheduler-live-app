@@ -146,6 +146,15 @@
     margin-right: 15px;
 }
 
+.Arrow {
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    margin-left: -16px;
+
+    animation: arrow 1s infinite;
+}
+
 @keyframes pulse {
     0% {
         background-color: #EBF8FE;
@@ -153,6 +162,20 @@
 
     100% {
         background-color: #FFFFFF;
+    }
+}
+
+@keyframes arrow {
+    0% {
+        transform: translateY(-30px);
+    }
+
+    50% {
+        transform: translateY(0);
+    }
+
+    100% {
+        transform: translateY(-30px);
     }
 }
 

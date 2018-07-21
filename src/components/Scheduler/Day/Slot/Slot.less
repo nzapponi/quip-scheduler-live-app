@@ -46,11 +46,23 @@
     align-self: flex-end;
     z-index: 10;
     display: flex;
+    padding: 2px 4px;
+    margin-right: -4px;
+    cursor: pointer;
 
     > svg {
         padding: 2px;
         margin-right: 2px;
     }
+
+    &:hover {
+        background-color: rgba(54, 54, 54, 0.1);
+        border-radius: 3px;
+    }
+}
+
+.AnswersBoxGreen:hover {
+    background-color: rgba(5, 151, 0, 0.1);
 }
 
 .dialog {
@@ -87,4 +99,13 @@
         margin-left: 5px;
     }
     padding-bottom: 10px;
+}
+
+.ProfilePicturesBox {
+    display: flex;
+    cursor: default;
+
+    > div:not(:first-child) {
+        margin-left: 5px;
+    }
 }

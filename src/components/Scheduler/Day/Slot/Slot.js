@@ -3,13 +3,15 @@ import moment from 'moment';
 
 import Icon from '../../../Icon/Icon';
 import Dialog from '../../../dialog/dialog';
+import Tooltip from '../../../Tooltip/Tooltip';
 
 import Styles from './Slot.less';
 
 class Slot extends Component {
 
     state = {
-        isDeleting: false
+        isDeleting: false,
+        tooltipOpen: false
     }
 
     componentDidMount() {
@@ -89,6 +91,17 @@ class Slot extends Component {
         this.setState({ isDeleting: true });
     }
 
+    toggleTooltip = (e, newState) => {
+        if (e) {
+            e.stopPropagation();
+        }
+        let newTooltipState = newState;
+        if (!newTooltipState) {
+            newTooltipState = !this.state.tooltipOpen;
+        }
+        this.setState({ tooltipOpen: newTooltipState });
+    }
+
     render() {
         const slot = this.props.slot;
     
@@ -114,21 +127,36 @@ class Slot extends Component {
             return type == 'yes';
         });
 
-        const profilePictures = acceptedResponses.map(response => {
-            const userId = response.get('userId');
-            const user = quip.apps.getUserById(userId);
-            
-            if (user) {
-                return <quip.apps.ui.ProfilePicture
-                    key={userId}
-                    user={user}
-                    size={50}
-                    round
-                />;
-            } else {
-                return null;
+        let profilePictures, tooltip;
+        if (this.state.tooltipOpen) {
+            profilePictures = acceptedResponses.map(response => {
+                const userId = response.get('userId');
+                const user = quip.apps.getUserById(userId);
+                
+                if (user) {
+                    const userName = user.getName();
+                    return <div title={userName}>
+                        <quip.apps.ui.ProfilePicture
+                        key={userId}
+                        user={user}
+                        size={35}
+                        round
+                        />
+                    </div>;
+                } else {
+                    return null;
+                }
+            });
+
+            if (profilePictures.length > 0) {
+                tooltip = <Tooltip onBlur={() => this.toggleTooltip(null, false)}>
+                    <div className={Styles.ProfilePicturesBox} onClick={e => e.stopPropagation()}>
+                        {profilePictures}
+                    </div>
+                </Tooltip>;
             }
-        });
+
+        }
 
         let deletingDialog;
         if (this.state.isDeleting) {
@@ -187,7 +215,7 @@ class Slot extends Component {
                 style={{zIndex: '10', position: 'absolute', top: '7px', right: '10px', cursor: 'pointer'}}>
                 <Icon type="close" width={18} height={18} color="#7D7D7D" />
             </div>
-            <div className={Styles.AnswersBox}>
+            <div className={[Styles.AnswersBox, accepted ? Styles.AnswersBoxGreen : null].join(' ')} onClick={this.toggleTooltip}>
                 <Icon type="user" width={18} height={18} color={accepted ? quip.apps.ui.ColorMap.GREEN.VALUE : '#494949'} />
                 <div style={{fontWeight: 'bold', color: accepted ? quip.apps.ui.ColorMap.GREEN.VALUE : '#494949'}}>{acceptedResponses.length}</div>
             </div>
@@ -197,7 +225,7 @@ class Slot extends Component {
             </div>
             <div className={heightStyles.join(' ')} style={{height: height + '%', backgroundColor: quip.apps.ui.ColorMap.GREEN.VALUE_LIGHT}}></div>
 
-            {/* {profilePictures} */}
+            {tooltip}
             {deletingDialog}
         </div>;
     }

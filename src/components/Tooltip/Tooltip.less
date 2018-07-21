@@ -1,0 +1,38 @@
+.Tooltip {
+    background-color: #fff;
+    color: #353535;
+    border: none;
+    border-radius: 5px;
+    z-index: 301;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 5px 10px;
+    position: absolute;
+    padding: 5px 10px;
+    left: 100%;
+    margin-left: -40px;
+    bottom: 35px;
+
+    ::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 10px;
+        width: 0;
+        height: 0;
+        border-top: 8px solid #ffffff;
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        // box-shadow: rgba(0,0,0,0.1) 0px 2px 0px;
+    }
+
+    animation: appear 300ms forwards;
+}
+
+@keyframes appear {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
