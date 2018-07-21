@@ -54,17 +54,17 @@ class Slot extends Component {
             const currentResponse = myResponse.get('type');
             if (currentResponse == 'yes') {
                 myResponse.set('type', 'no');
-                quip.apps.sendMessage(`rejected the slot on ${moment(this.props.slot.get('startTime')).format('LLL')} - ${moment(this.props.slot.get('endTime')).format('LT')}.`);
+                quip.apps.sendMessage(`rejected the slot on ${moment(this.props.slot.get('startTime')).format('LLL')} - ${moment(this.props.slot.get('endTime')).format('LT Z')}.`);
             } else {
                 myResponse.set('type', 'yes');
-                quip.apps.sendMessage(`accepted the slot on ${moment(this.props.slot.get('startTime')).format('LLL')} - ${moment(this.props.slot.get('endTime')).format('LT')}.`);
+                quip.apps.sendMessage(`accepted the slot on ${moment(this.props.slot.get('startTime')).format('LLL')} - ${moment(this.props.slot.get('endTime')).format('LT Z')}.`);
             }
         } else {
             slot.get('responses').add({
                 userId: quip.apps.getViewingUser().getId(),
                 type: 'yes'
             });
-            quip.apps.sendMessage(`accepted the slot on ${moment(this.props.slot.get('startTime')).format('LLL')} - ${moment(this.props.slot.get('endTime')).format('LT')}.`);
+            quip.apps.sendMessage(`accepted the slot on ${moment(this.props.slot.get('startTime')).format('LLL')} - ${moment(this.props.slot.get('endTime')).format('LT Z')}.`);
         }
 
         this.props.updateSlot();
