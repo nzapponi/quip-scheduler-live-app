@@ -227,15 +227,17 @@ class Day extends Component {
             </div>;
         }
     
-        return <div className={styles.join(' ')}>
-            {prettyDay}
-            {slotsBlock}
+        return <div style={{display: 'flex'}}>
+            <div className={styles.join(' ')}>
+                {prettyDay}
+                {slotsBlock}
+                <div className={Styles.BottomButtons}>
+                    {deleteButton}
+                    {slotButton}
+                </div>
+            </div>
             {datePicker}
             {newSlotPicker}
-            <div className={Styles.BottomButtons}>
-                {deleteButton}
-                {slotButton}
-            </div>
         </div>;
     }
     
