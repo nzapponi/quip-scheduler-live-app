@@ -13,8 +13,11 @@ class Day extends Component {
         newSlotPicker: false,
         startTime: null,
         endTime: null,
+        newSlotError: null,
         pendingPulse: false,
-        pulsing: false
+        pulsing: false,
+        newSelectedDate: null,
+        newDateError: null
     }
 
     componentDidMount() {
@@ -40,7 +43,14 @@ class Day extends Component {
         if (this.state.pendingPulse) {
             this.setState({
                 pendingPulse: false,
-                pulsing: true
+                pulsing: true,
+                newDateError: null,
+                newSelectedDate: null
+            });
+        } else {
+            this.setState({
+                newSelectedDate: null,
+                newDateError: null
             });
         }
     }
@@ -54,21 +64,33 @@ class Day extends Component {
 
     updateTimeHandler = (type, event) => {
 
-        const newStartTime = +event.target.value;
+        const newTime = +event.target.value;
 
         if (type === 'start') {
             let newEndTime = this.state.endTime;
-            if (newEndTime <= newStartTime) {
-                newEndTime = newStartTime + 60*60*1000;
+            if (newEndTime <= newTime) {
+                newEndTime = newTime + 60*60*1000;
+                if (moment(newEndTime).startOf('day').isAfter(moment(newTime).startOf('day'))) {
+                    newEndTime = moment(newEndTime).startOf('day').valueOf();
+                }
             }
 
+            // Check if it already exists
+            const existingTimeslot = this.props.day.timeslots.find(slot => slot.get('startTime') == newTime && slot.get('endTime') == newEndTime);
+
             this.setState({
-                startTime: newStartTime,
-                endTime: newEndTime
+                startTime: newTime,
+                endTime: newEndTime,
+                newSlotError: existingTimeslot ? 'This slot already exists' : null
             });
         } else if (type === 'end') {
+
+            // Check if it already exists
+            const existingTimeslot = this.props.day.timeslots.find(slot => slot.get('startTime') == this.state.startTime && slot.get('endTime') == newTime);
+
             this.setState({
-                endTime: newStartTime
+                endTime: newTime,
+                newSlotError: existingTimeslot ? 'This slot already exists' : null
             });
         }
     }
@@ -84,26 +106,51 @@ class Day extends Component {
         this.setState({});
     }
 
+    selectNewDate = (newTimestamp) => {
+
+        // Validate that the timestamp is okay
+
+        const startOfToday = moment().startOf('day').valueOf();
+        const startOfSelectedDay = moment(newTimestamp).startOf('day').valueOf();
+        if (startOfSelectedDay < startOfToday) {
+            // Selected date is in the past. Not okay
+            this.setState({
+                newSelectedDate: null,
+                newDateError: 'You cannot select a date in the past'
+            });
+        } else if (this.props.validateDate(startOfSelectedDay)) {
+            // Selected date already exists. Not okay
+            this.setState({
+                newSelectedDate: null,
+                newDateError: 'This date is already selected'
+            });
+        } else {
+            // Date is okay!
+            this.setState({
+                newSelectedDate: startOfSelectedDay,
+                newDateError: null
+            });
+        }
+    }
+
+    updateNewDate = () => {
+        this.props.setNewDate(this.props.day.timestamp, this.state.newSelectedDate);
+    }
+
     render() {
         const dayConfiguration = this.props.day;
-        const today = moment();
-        const startOfToday = today.startOf('day');
 
-        const startOfDay = moment(dayConfiguration.timestamp).startOf('day');
+        let time = moment(dayConfiguration.timestamp).startOf('day');
 
         const hours = [];
-        for (let i = 0; i < 24; i++) {
-            let time = startOfDay.clone().hours(i).minutes(0);
-            hours.push({
-                label: time.format('LT'),
-                value: time.valueOf()
-            });
-
-            let laterTime = time.clone().minutes(30);
-            hours.push({
-                label: laterTime.format('LT'),
-                value: laterTime.valueOf()
-            });
+        for (let i = 0; i < 49; i++) {
+            if (time.isSameOrAfter(moment())) {
+                hours.push({
+                    label: time.format('LT'),
+                    value: time.valueOf()
+                });
+            }
+            time = time.add(30, 'minutes');
         }
 
         let datePicker;
@@ -116,16 +163,17 @@ class Day extends Component {
                     <div className={Styles.picker} style={{padding: '0 40px'}}>
                         <quip.apps.ui.CalendarPicker
                             initialSelectedDateMs={this.props.day.timestamp > 0 ? this.props.day.timestamp : Date.now()}
-                            onChangeSelectedDateMs={(newTime) => this.props.setNewDate(this.props.day.timestamp, newTime)}
+                            onChangeSelectedDateMs={this.selectNewDate}
                         />
+                        {this.state.newDateError ? <div className={Styles.DialogError}>{this.state.newDateError}</div> : null}
                     </div>
                     <div className={Styles.actions} style={{padding: '20px 0'}}>
-                        <quip.apps.ui.Button
-                            text="Schedule"
-                            primary={true}
-                            disabled={this.props.day.timestamp < startOfToday}
-                            onClick={() => this.props.dismissDatePicker(this.props.day.timestamp)}
-                        />
+                        <button
+                            className={['quip-button-primary', Styles.PrimaryButton].join(' ')}
+                            disabled={this.state.newSelectedDate == null}
+                            onClick={this.updateNewDate} >
+                            <Icon type="forward" width={15} height={15} />
+                        </button>
                     </div>
                 </div>
             </Dialog>;
@@ -135,8 +183,12 @@ class Day extends Component {
 
         if (dayConfiguration.timeslots.length > 0) {
             slots = dayConfiguration.timeslots.sort((slotA, slotB) => {
-                const timeA = slotA.get('startTime');
-                const timeB = slotB.get('startTime');
+                let timeA = slotA.get('startTime');
+                let timeB = slotB.get('startTime');
+                if (timeA == timeB) {
+                    timeA = slotA.get('endTime');
+                    timeB = slotB.get('endTime');
+                }
                 return timeA - timeB;
             }).map((slot) => {
                 const key = slot.get('startTime') + '-' + slot.get('endTime');
@@ -177,23 +229,25 @@ class Day extends Component {
                     <div className={Styles.header}>
                         {quiptext("Select a Time")}
                     </div>
-                    <div className={Styles.picker} style={{minHeight: 'auto', padding: '0px 40px 20px 40px', alignItems: 'center'}}>
-                        <select className={Styles.DialogInput} placeholder="HH:MM" value={this.state.startTime} onChange={(event) => this.updateTimeHandler('start', event)}>
-                            {hours.map(hour => <option key={hour.value} value={hour.value}>{hour.label}</option>)}
-                        </select>
-                        <span style={{padding: '0 20px'}}>to</span>
-                        <select className={Styles.DialogInput} placeholder="HH:MM" value={this.state.endTime} onChange={(event) => this.updateTimeHandler('end', event)}>
-                        {hours.filter(hour => hour.value > this.state.startTime).map(hour => <option key={hour.value} value={hour.value}>{hour.label}</option>)}
-                        </select>
+                    <div className={Styles.picker} style={{minHeight: 'auto', padding: '0px 40px 20px 40px'}}>
+                        <div style={{display: 'flex', alignItems: 'center'}}>
+                            <select className={Styles.DialogInput} placeholder="HH:MM" value={this.state.startTime} onChange={(event) => this.updateTimeHandler('start', event)}>
+                                {hours.slice(0,hours.length-1).map(hour => <option key={hour.value} value={hour.value}>{hour.label}</option>)}
+                            </select>
+                            <span style={{padding: '0 20px'}}>to</span>
+                            <select className={Styles.DialogInput} placeholder="HH:MM" value={this.state.endTime} onChange={(event) => this.updateTimeHandler('end', event)}>
+                            {hours.filter(hour => hour.value > this.state.startTime).map(hour => <option key={hour.value} value={hour.value}>{hour.label}</option>)}
+                            </select>
+                        </div>
+                        {this.state.newSlotError ? <div className={Styles.DialogError}>{this.state.newSlotError}</div> : null}
                     </div>
                     <div className={Styles.actions}>
-                        <quip.apps.ui.Button
-                            text={quiptext("Cancel")}
-                            onClick={this.dismissNewSlotPicker}/>
-                        <quip.apps.ui.Button
-                            primary={true}
-                            text={quiptext("Save")}
-                            onClick={this.createSlotHandler}/>
+                        <button
+                            className={['quip-button-primary', Styles.PrimaryButton].join(' ')}
+                            disabled={this.state.newSlotError}
+                            onClick={this.createSlotHandler} >
+                            <Icon type="forward" width={15} height={15} />
+                        </button>
                     </div>
                 </div>
             </Dialog>;

@@ -13,6 +13,7 @@ const scheduler = (props) => {
             key={day.timestamp}
             day={day}
             setNewDate={props.setNewDate}
+            validateDate={props.validateDate}
             openDatePicker={props.openDatePicker}
             dismissDatePicker={props.dismissDatePicker} 
             createTimeslot={props.createTimeslot}

@@ -173,11 +173,15 @@ export default class App extends Component {
 
                 this.setState({
                     dates: newDates
+                }, () => {
+                    this.dismissDatePickerHandler(newTimestamp);
                 });
 
             } else {
                 this.setState({
                     dates: [...this.state.dates]
+                }, () => {
+                    this.dismissDatePickerHandler(oldTimestamp);
                 });
             }
 
@@ -253,6 +257,10 @@ export default class App extends Component {
         });
     }
 
+    checkIfDateExists = (startOfDay) => {
+        return this.state.dates.find(d => d.timestamp == startOfDay);
+    }
+
     render() {
 
         return <div>
@@ -262,6 +270,7 @@ export default class App extends Component {
                 dismissDatePicker={this.dismissDatePickerHandler}
                 setNewDate={this.setDateHandler}
                 deleteDate={this.deleteDayHandler}
+                validateDate={this.checkIfDateExists}
                 createTimeslot={this.createTimeslotHander}
                 deleteTimeslot={this.deleteTimeslotHandler} />
         </div>;
