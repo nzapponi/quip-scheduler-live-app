@@ -19,9 +19,11 @@
     text-align: center;
     height: 100%;
     width: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
+    // position: absolute;
+    // top: 0;
+    // left: 0;
+    flex-grow: 1;
+    margin-top: -90px;
 }
 
 
@@ -40,10 +42,9 @@
     width: 200px;
     margin-right: 5px;
     min-height: 400px;
-    position: relative;
-    margin-bottom: 20px;
     display: flex;
     flex-direction: column;
+    flex-grow: 1
 }
 
 .AnimateColumn {
@@ -69,13 +70,11 @@
 }
 
 .BottomButtons {
-    position: absolute;
     height: 40px;
     width: 100%;
-    bottom: -20px;
-    left: 0;
     display: flex;
     justify-content: center;
+    margin-top: -20px;
 }
 
 .BottomButton {

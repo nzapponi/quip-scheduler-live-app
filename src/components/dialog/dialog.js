@@ -24,11 +24,11 @@ export default class Dialog extends Component {
     }
 
     onFocus = () => {
-        this.setState({focused: true});
+        this.setState({ focused: true });
     };
 
     onBlur = () => {
-        this.setState({focused: false});
+        this.setState({ focused: false });
     };
 
     toggle() {
@@ -87,28 +87,31 @@ export default class Dialog extends Component {
             style={style}
             onClick={e => {
                 e.preventDefault();
-            }}/>;
+            }} />;
     }
 
     render() {
-        const {focused} = this.state;
+        const { focused } = this.state;
         if (!focused) {
             return this.clickCover();
         }
 
-        let {left, top} = this.props;
+        let { left, top } = this.props;
         if (!left && !top) {
             // If no position is provided, the dialog will be centered.
             const viewportDimensions = quip.apps.getViewportDimensions();
             const boundingRect = quip.apps.getBoundingClientRect();
             left = viewportDimensions.width / 2 - boundingRect.left;
             top = viewportDimensions.height / 2 - boundingRect.top;
+            console.log(viewportDimensions, boundingRect);
         }
-        return <div
-            className={Styles.dialog}
-            style={{left, top}}
-            ref={node => (this.dialogNode_ = node)}>
-            {this.props.children}
+        return <div>
+            <div
+                className={Styles.dialog}
+                style={{ left, top }}
+                ref={node => (this.dialogNode_ = node)}>
+                {this.props.children}
+            </div>
         </div>;
     }
 }

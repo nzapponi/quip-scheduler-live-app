@@ -286,15 +286,15 @@ class Day extends Component {
             </div>;
         }
     
-        return <div style={{display: 'flex'}}>
-            <div className={styles.join(' ')}>
+        return <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}>
+            <div className={styles.join(' ')} style={{justifyContent: dayConfiguration.timeslots.length == 0 ? 'center' : null}}>
                 {prettyDay}
                 {slotsBlock}
-                {editable ? <div className={Styles.BottomButtons}>
-                    {deleteButton}
-                    {slotButton}
-                </div> : null }
             </div>
+            {editable ? <div className={Styles.BottomButtons}>
+                {deleteButton}
+                {slotButton}
+            </div> : null }
             {editable ? datePicker : null}
             {editable ? newSlotPicker : null}
         </div>;
