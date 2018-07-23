@@ -31,10 +31,14 @@ class Day extends Component {
         const startOfHour = moment(this.props.day.timestamp).hours(moment().hours()).minutes(0);
         const endTime = moment(this.props.day.timestamp).hours(moment().hours()).add(1, 'hours').minutes(0);
 
+        // Check if it already exists
+        const existingTimeslot = this.props.day.timeslots.find(slot => slot.get('startTime') == startOfHour && slot.get('endTime') == endTime);
+
         this.setState({
             newSlotPicker: true,
             startTime: startOfHour.valueOf(),
-            endTime: endTime.valueOf()
+            endTime: endTime.valueOf(),
+            newSlotError: existingTimeslot ? 'This slot already exists' : null
         });
     }
 
