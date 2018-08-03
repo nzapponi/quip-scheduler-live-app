@@ -8,10 +8,12 @@ export default class App extends Component {
 
     state = {
         record: null,
+        containerWidth: 800,
         dates: []
     }
 
     componentDidMount() {
+        this.updateContainerWidth();
         this.updateDates();
 
         this.setState({
@@ -25,6 +27,8 @@ export default class App extends Component {
         if (timeslots) {
             timeslots.listen(this.remoteUpdateHandler);
         }
+
+        quip.apps.addEventListener(quip.apps.EventType.CONTAINER_SIZE_UPDATE, this.updateContainerWidth);
     }
 
     componentWillUnmount() {
@@ -35,6 +39,12 @@ export default class App extends Component {
         if (timeslots) {
             timeslots.listen(this.remoteUpdateHandler);
         }
+
+        quip.apps.removeEventListener(quip.apps.EventType.CONTAINER_SIZE_UPDATE, this.updateContainerWidth);
+    }
+
+    updateContainerWidth = () => {
+        this.setState({ containerWidth: quip.apps.getContainerWidth() });
     }
 
     remoteUpdateHandler = () => {
@@ -83,7 +93,7 @@ export default class App extends Component {
             return dateA.timestamp - dateB.timestamp;
         });
 
-        if (editable) {
+        if (editable && quip.apps.getContainerWidth() == 800) {
             if (days.length == 0) {
                 days.push({
                     timestamp: 0,
@@ -275,7 +285,8 @@ export default class App extends Component {
                 deleteDate={this.deleteDayHandler}
                 validateDate={this.checkIfDateExists}
                 createTimeslot={this.createTimeslotHander}
-                deleteTimeslot={this.deleteTimeslotHandler} />
+                deleteTimeslot={this.deleteTimeslotHandler}
+                containerWidth={this.state.containerWidth} />
         </div>;
     }
 }

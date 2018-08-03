@@ -197,7 +197,7 @@ class Day extends Component {
                 return timeA - timeB;
             }).map((slot) => {
                 const key = slot.get('startTime') + '-' + slot.get('endTime');
-                return <Slot key={key} startOfDay={dayConfiguration.timestamp} slot={slot} deleteTimeslot={this.props.deleteTimeslot} updateSlot={this.updateSlotHandler} />;
+                return <Slot key={key} startOfDay={dayConfiguration.timestamp} slot={slot} deleteTimeslot={this.props.deleteTimeslot} updateSlot={this.updateSlotHandler} isMobile={this.props.isMobile} />;
             });
         }
 
@@ -219,7 +219,11 @@ class Day extends Component {
 
             let slotsBlockStyle = Styles.DayColumn;
             if (dayConfiguration.timeslots.length == 0) {
-                slotsBlockStyle = Styles.NewDayColumn;
+                if (this.props.isMobile) {
+                    slotsBlockStyle = [Styles.NewDayColumn, Styles.Mobile].join(' ');
+                } else {
+                    slotsBlockStyle = Styles.NewDayColumn;
+                }
             }
 
             slotsBlock = <div className={slotsBlockStyle}>
@@ -285,13 +289,21 @@ class Day extends Component {
                 </div>
             </div>;
         }
+
+        let bottomButtonStyles = [Styles.BottomButtons];
+
+        if (this.props.isMobile) {
+            styles.push(Styles.Mobile);
+            bottomButtonStyles.push(Styles.Mobile);
+        }
+
     
         return <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}>
             <div className={styles.join(' ')} style={{justifyContent: dayConfiguration.timeslots.length == 0 ? 'center' : null}}>
                 {prettyDay}
                 {slotsBlock}
             </div>
-            {editable ? <div className={Styles.BottomButtons}>
+            {editable ? <div className={bottomButtonStyles.join(' ')}>
                 {deleteButton}
                 {slotButton}
             </div> : null }

@@ -223,7 +223,7 @@ class Slot extends Component {
                     <div style={{ color: '#494949', fontSize: '18px' }}>{startTime.format('LT')}</div>
                     <div style={{ color: '#7D7D7D', fontSize: '14px' }}>{endTime.format('LT')}</div>
                 </div>
-                {editable ? <div
+                {editable && !this.props.isMobile ? <div
                     onClick={this.openDialog}
                     style={{ zIndex: '10', position: 'absolute', top: '7px', right: '10px', cursor: 'pointer' }}>
                     <Icon type="close" width={18} height={18} color="#7D7D7D" />
