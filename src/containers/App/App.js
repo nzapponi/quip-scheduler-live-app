@@ -9,12 +9,14 @@ export default class App extends Component {
     state = {
         record: null,
         containerWidth: 800,
-        dates: []
+        dates: [],
+        googleLogin: false
     }
 
     componentDidMount() {
         this.updateContainerWidth();
         this.updateDates();
+        this.updateGoogleLogin();
 
         this.setState({
             record: this.props.record
@@ -41,6 +43,80 @@ export default class App extends Component {
         }
 
         quip.apps.removeEventListener(quip.apps.EventType.CONTAINER_SIZE_UPDATE, this.updateContainerWidth);
+    }
+
+    updateGoogleLogin = () => {
+        const google = quip.apps.auth('google');
+        if (google) {
+            this.setState({ googleLogin: google.isLoggedIn() });
+        }
+    }
+
+    updateMenu = () => {
+        const commandList = ['google-header'];
+        if (this.state.googleLogin) {
+            commandList.push('google-logout');
+        } else {
+            commandList.push('google-login');
+        }
+
+        const menuCommands = [
+            {
+                id: quip.apps.DocumentMenuCommands.MENU_MAIN,
+                subCommands: commandList
+            },
+            {
+                id: 'google-header',
+                label: 'Calendar Integration',
+                isHeader: true
+            },
+            {
+                id: 'google-login',
+                label: 'Connect to Google…',
+                handler: this.googleLoginHandler
+            },
+            {
+                id: 'google-logout',
+                label: 'Disconnect Google',
+                handler: this.googleLogoutHandler
+            }
+        ];
+        const toolbarCommandIds = [ quip.apps.DocumentMenuCommands.MENU_MAIN ];
+        const disabledCommandIds = [];
+
+        quip.apps.updateToolbar({
+            toolbarCommandIds: toolbarCommandIds,
+            menuCommands: menuCommands,
+            disabledCommandIds: disabledCommandIds
+        });
+    }
+
+    googleLoginHandler = () => {
+        const google = quip.apps.auth('google');
+        if (google) {
+            google.login({
+                access_type: 'offline',
+                prompt: 'consent'
+            })
+                .then(() => {
+                    console.log('Google login successful!');
+                    this.setState({ googleLogin: true });
+                })
+                .catch(err => {
+                    console.log('Error while logging into Google', err);
+                    this.setState({ googleLogin: false });
+                });
+        }
+    }
+
+    googleLogoutHandler = () => {
+        const google = quip.apps.auth('google');
+        if (google) {
+            google.logout()
+                .then(() => {
+                    this.setState({ googleLogin: false });
+                });
+        }
     }
 
     updateContainerWidth = () => {
@@ -276,6 +352,8 @@ export default class App extends Component {
 
     render() {
 
+        this.updateMenu();
+
         return <div>
             <Scheduler
                 days={this.state.dates}
@@ -286,7 +364,8 @@ export default class App extends Component {
                 validateDate={this.checkIfDateExists}
                 createTimeslot={this.createTimeslotHander}
                 deleteTimeslot={this.deleteTimeslotHandler}
-                containerWidth={this.state.containerWidth} />
+                containerWidth={this.state.containerWidth}
+                googleLogin={this.state.googleLogin} />
         </div>;
     }
 }

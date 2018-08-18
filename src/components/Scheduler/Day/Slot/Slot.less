@@ -42,12 +42,16 @@
     border-radius: 5px;
 }
 
-.AnswersBox {
+.BottomRightOptions {
     align-self: flex-end;
+    display: flex;
+    margin-right: -4px;
+}
+
+.AnswersBox {
     z-index: 10;
     display: flex;
     padding: 2px 4px;
-    margin-right: -4px;
     cursor: pointer;
 
     > svg {
@@ -63,6 +67,22 @@
 
 .AnswersBoxGreen:hover {
     background-color: rgba(5, 151, 0, 0.1);
+}
+
+.AvailabilitySlots {
+    display: flex;
+    flex-direction: column;
+
+    > div {
+        padding: 5px 10px;
+        margin-top: 10px;
+        border: 1px solid #E8E8E8;
+        border-radius: 3px;
+
+        &:hover {
+            box-shadow: 0 3px 5px -2px rgba(0,0,0,0.1);
+        }
+    }
 }
 
 .dialog {

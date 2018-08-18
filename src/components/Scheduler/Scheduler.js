@@ -24,6 +24,7 @@ const scheduler = (props) => {
             createTimeslot={props.createTimeslot}
             deleteTimeslot={props.deleteTimeslot}
             deleteDate={props.deleteDate}
+            googleLogin={props.googleLogin}
             isMobile={props.containerWidth < 800} />);
     }
 

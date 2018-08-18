@@ -23,7 +23,7 @@ class Tooltip extends Component {
     }
     
     render() { 
-        return <div ref={(node) => this.dialogNode_ = node} className={Styles.Tooltip}>
+        return <div ref={(node) => this.dialogNode_ = node} className={Styles.Tooltip} style={{marginLeft: this.props.marginLeft || '-40px'}}>
             {this.props.children}
         </div>;
     }

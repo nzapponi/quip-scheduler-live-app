@@ -4,6 +4,7 @@ import moment from 'moment';
 import Icon from '../../../Icon/Icon';
 import Dialog from '../../../dialog/dialog';
 import Tooltip from '../../../Tooltip/Tooltip';
+import { createUrlWithQuery } from '../../../../shared/utils';
 
 import Styles from './Slot.less';
 
@@ -11,7 +12,13 @@ class Slot extends Component {
 
     state = {
         isDeleting: false,
-        tooltipOpen: false
+        attendeesTooltipOpen: false,
+        availabilityTooltipOpen: false,
+        availability: {
+            loading: true,
+            error: null,
+            items: []
+        }
     }
 
     componentDidMount() {
@@ -23,6 +30,14 @@ class Slot extends Component {
         const responses = this.props.slot.get('responses');
         if (responses) {
             responses.listen(this.remoteUpdateHandler);
+        }
+
+        this.checkAvailability();
+    }
+
+    componentDidUpdate(prevProps) {
+        if (this.props.googleLogin !== prevProps.googleLogin) {
+            this.checkAvailability();
         }
     }
 
@@ -96,15 +111,105 @@ class Slot extends Component {
         this.setState({ isDeleting: true });
     }
 
-    toggleTooltip = (e, newState) => {
+    toggleAttendeesTooltip = (e, newState) => {
         if (e) {
             e.stopPropagation();
         }
         let newTooltipState = newState;
         if (!newTooltipState) {
-            newTooltipState = !this.state.tooltipOpen;
+            newTooltipState = !this.state.attendeesTooltipOpen;
         }
-        this.setState({ tooltipOpen: newTooltipState });
+        this.setState({ attendeesTooltipOpen: newTooltipState });
+    }
+
+    toggleAvailabilityTooltip = (e, newState) => {
+        if (e) {
+            e.stopPropagation();
+        }
+        let newTooltipState = newState;
+        if (!newTooltipState) {
+            newTooltipState = !this.state.availabilityTooltipOpen;
+        }
+        this.setState({ availabilityTooltipOpen: newTooltipState });
+    }
+
+    checkAvailability = () => {
+        this.setState({
+            availability: {
+                loading: true,
+                error: null,
+                items: []
+            }
+        });
+
+        if (this.props.googleLogin) {
+            const google = quip.apps.auth('google');
+            const startTime = moment(this.props.slot.get('startTime'));
+            const endTime = moment(this.props.slot.get('endTime'));
+
+            const queryParams = {
+                singleEvents: true,
+                orderBy: 'startTime',
+                timeMin: startTime.format('YYYY-MM-DDTHH:mm:ss.SSSZ'),
+                timeMax: endTime.format('YYYY-MM-DDTHH:mm:ss.SSSZ')
+            };
+
+            this.authRequest(google, {
+                url: createUrlWithQuery('https://www.googleapis.com/calendar/v3/calendars/primary/events', queryParams),
+            })
+                .then(data => {
+                    this.setState({
+                        availability: {
+                            loading: false,
+                            error: null,
+                            items: data.items
+                        }
+                    });
+                })
+                .catch(err => {
+                    this.setState({
+                        availability: {
+                            loading: false,
+                            error: err,
+                            items: []
+                        }
+                    })
+                });
+        }
+    }
+
+    authRequest = (auth, requestParams) => {
+        if (auth && auth.isLoggedIn()) {
+            return auth.request(requestParams)
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else if (response.status == 401) {
+                        return auth.refreshToken()
+                            .then(() => auth.request(requestParams))
+                            .then(response => {
+                                if (response.ok) {
+                                    console.log('Refreshed token');
+                                    return response.json();
+                                } else {
+                                    const err = new Error(response.statusText);
+                                    err.status = response.status;
+                                    throw err;
+                                }
+                            })
+                            .catch(err => {
+                                throw err;
+                            });
+                    } else {
+                        const err = new Error(response.statusText);
+                        err.status = response.status;
+                        throw err;
+                    }
+                });
+        } else {
+            const err = new Error('Missing auth or not logged in');
+            return Promise.reject(err);
+        }
     }
 
     render() {
@@ -138,9 +243,9 @@ class Slot extends Component {
             return type == 'yes';
         });
 
-        let profilePictures, tooltip, deletingDialog;
+        let profilePictures, attendeesTooltip, deletingDialog, availabilityTooltip;
         if (editable) {
-            if (this.state.tooltipOpen) {
+            if (this.state.attendeesTooltipOpen) {
                 profilePictures = acceptedResponses.map(response => {
                     const userId = response.get('userId');
                     const user = quip.apps.getUserById(userId);
@@ -161,7 +266,7 @@ class Slot extends Component {
                 });
 
                 if (profilePictures.length > 0) {
-                    tooltip = <Tooltip onBlur={() => this.toggleTooltip(null, false)}>
+                    attendeesTooltip = <Tooltip onBlur={() => this.toggleAttendeesTooltip(null, false)}>
                         <div className={Styles.ProfilePicturesBox} onClick={e => e.stopPropagation()}>
                             {profilePictures}
                         </div>
@@ -192,6 +297,26 @@ class Slot extends Component {
                     </div>
                 </Dialog>;
             }
+
+            if (this.state.availabilityTooltipOpen && this.state.availability.items.length > 0) {
+                const calendarEvents = this.state.availability.items.map(event => {
+                    let startTime = moment(event.start.dateTime);
+                    let endTime = moment(event.end.dateTime);
+                    return <div key={event.id} onClick={() => quip.apps.openLink(event.htmlLink)} style={{backgroundColor: quip.apps.ui.ColorMap.BLUE.VALUE_LIGHT}}>
+                        <div style={{color: '#666666'}}>{event.summary}</div>
+                        <div style={{color: '#ADADAD'}}>{startTime.format('LT')} &mdash; {endTime.format('LT')}</div>
+                    </div>
+                });
+
+                availabilityTooltip = <Tooltip onBlur={() => this.toggleAvailabilityTooltip(null, false)} marginLeft="-80px">
+                    <div onClick={e => e.stopPropagation()} style={{width: '200px', padding: '5px'}}>
+                        <div style={{color: '#666666', textAlign: 'center'}}>CALENDAR CLASHES</div>
+                        <div className={Styles.AvailabilitySlots}>
+                            {calendarEvents}
+                        </div>
+                    </div>
+                </Tooltip>;
+            }
         }
 
         const styles = [Styles.SlotBox];
@@ -213,6 +338,23 @@ class Slot extends Component {
             }
         }
 
+        let calendarAvailability;
+        if (this.state.availability && !this.state.availability.loading && !this.state.availability.error) {
+            if (this.state.availability.items.length > 0) {
+                // Busy
+                calendarAvailability = <div className={[Styles.AnswersBox, accepted ? Styles.AnswersBoxGreen : null].join(' ')} onClick={this.toggleAvailabilityTooltip}>
+                    <Icon type="monthlyview" width={18} height={18} color='#7D7D7D' />
+                    <Icon type="warning" width={18} height={18} color={quip.apps.ui.ColorMap.YELLOW.VALUE} />
+                </div>;
+            } else {
+                // Free
+                calendarAvailability = <div className={[Styles.AnswersBox, accepted ? Styles.AnswersBoxGreen : null].join(' ')} onClick={this.toggleAvailabilityTooltip}>
+                    <Icon type="monthlyview" width={18} height={18} color='#7D7D7D' />
+                    <Icon type="check" width={18} height={18} color={quip.apps.ui.ColorMap.GREEN.VALUE} />
+                </div>;
+            }
+        }
+
         return <div>
             <div
                 className={styles.join(' ')}
@@ -228,9 +370,12 @@ class Slot extends Component {
                     style={{ zIndex: '10', position: 'absolute', top: '7px', right: '10px', cursor: 'pointer' }}>
                     <Icon type="close" width={18} height={18} color="#7D7D7D" />
                 </div> : null}
-                <div className={[Styles.AnswersBox, accepted ? Styles.AnswersBoxGreen : null].join(' ')} onClick={this.toggleTooltip}>
-                    <Icon type="user" width={18} height={18} color={accepted ? quip.apps.ui.ColorMap.GREEN.VALUE : '#494949'} />
-                    <div style={{ fontWeight: 'bold', color: accepted ? quip.apps.ui.ColorMap.GREEN.VALUE : '#494949' }}>{acceptedResponses.length}</div>
+                <div className={Styles.BottomRightOptions}>
+                    {calendarAvailability}
+                    <div className={[Styles.AnswersBox, accepted ? Styles.AnswersBoxGreen : null].join(' ')} onClick={this.toggleAttendeesTooltip}>
+                        <Icon type="user" width={18} height={18} color={accepted ? quip.apps.ui.ColorMap.GREEN.VALUE : '#494949'} />
+                        <div style={{ fontWeight: 'bold', color: accepted ? quip.apps.ui.ColorMap.GREEN.VALUE : '#494949' }}>{acceptedResponses.length}</div>
+                    </div>
                 </div>
 
                 <div style={{ zIndex: '10', position: 'absolute', bottom: '7px', left: '10px' }} onClick={(e) => e.stopPropagation()}>
@@ -238,7 +383,8 @@ class Slot extends Component {
                 </div>
                 <div className={heightStyles.join(' ')} style={{ height: height + '%', backgroundColor: quip.apps.ui.ColorMap.GREEN.VALUE_LIGHT }}></div>
 
-                {editable ? tooltip : null}
+                {editable ? attendeesTooltip : null}
+                {editable ? availabilityTooltip : null}
             </div>
             {editable ? deletingDialog : null}
         </div>;

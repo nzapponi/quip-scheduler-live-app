@@ -197,7 +197,14 @@ class Day extends Component {
                 return timeA - timeB;
             }).map((slot) => {
                 const key = slot.get('startTime') + '-' + slot.get('endTime');
-                return <Slot key={key} startOfDay={dayConfiguration.timestamp} slot={slot} deleteTimeslot={this.props.deleteTimeslot} updateSlot={this.updateSlotHandler} isMobile={this.props.isMobile} />;
+                return <Slot
+                    key={key}
+                    startOfDay={dayConfiguration.timestamp}
+                    slot={slot}
+                    deleteTimeslot={this.props.deleteTimeslot}
+                    updateSlot={this.updateSlotHandler}
+                    isMobile={this.props.isMobile}
+                    googleLogin={this.props.googleLogin} />;
             });
         }
 
