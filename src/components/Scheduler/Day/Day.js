@@ -28,15 +28,32 @@ class Day extends Component {
 
     showNewSlotPickerHandler = () => {
 
-        const startOfHour = moment(this.props.day.timestamp).hours(moment().hours()).minutes(0);
-        const endTime = moment(this.props.day.timestamp).hours(moment().hours()).add(1, 'hours').minutes(0);
+        let startTime = moment(this.props.day.timestamp).hours(moment().hours()).minutes(0);
+
+        if (startTime.isSame(moment(), 'day')) {
+            if (moment().minutes() < 30) {
+                startTime = moment().startOf('hour').add(30, 'minutes');
+            } else {
+                startTime = moment().startOf('hour').add(1, 'hours');
+            }
+        }
+
+        if (!startTime.isSame(moment(), 'day')) {
+            startTime = moment().endOf('day').subtract(30, 'minutes');
+        }
+
+        let endTime = startTime.clone().add(1, 'hours');
+
+        if (!endTime.isSame(moment(), 'day')) {
+            endTime = moment().endOf('day');
+        }
 
         // Check if it already exists
-        const existingTimeslot = this.props.day.timeslots.find(slot => slot.get('startTime') == startOfHour && slot.get('endTime') == endTime);
+        const existingTimeslot = this.props.day.timeslots.find(slot => slot.get('startTime') == startTime && slot.get('endTime') == endTime);
 
         this.setState({
             newSlotPicker: true,
-            startTime: startOfHour.valueOf(),
+            startTime: startTime.valueOf(),
             endTime: endTime.valueOf(),
             newSlotError: existingTimeslot ? 'This slot already exists' : null
         });

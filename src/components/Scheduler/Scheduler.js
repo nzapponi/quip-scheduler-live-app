@@ -8,7 +8,7 @@ const scheduler = (props) => {
     const days = props.days;
     const styles = [Styles.SchedulerBox];
 
-    if (props.containerWidth < 800) {
+    if (quip.apps.isMobile()) {
         styles.push(Styles.Mobile);
     }
     
@@ -25,10 +25,10 @@ const scheduler = (props) => {
             deleteTimeslot={props.deleteTimeslot}
             deleteDate={props.deleteDate}
             googleLogin={props.googleLogin}
-            isMobile={props.containerWidth < 800} />);
+            isMobile={quip.apps.isMobile()} />);
     }
 
-    return <div className={styles.join(' ')} style={{width: props.containerWidth < 800 ? props.containerWidth : null}}>
+    return <div className={styles.join(' ')} style={{width: quip.apps.isMobile() ? props.containerWidth : null}}>
         {dayComponents}
     </div>;
 };
