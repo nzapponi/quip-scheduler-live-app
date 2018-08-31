@@ -36,10 +36,10 @@ class Day extends Component {
             } else {
                 startTime = moment().startOf('hour').add(1, 'hours');
             }
-        }
 
-        if (!startTime.isSame(moment(), 'day')) {
-            startTime = moment().endOf('day').subtract(30, 'minutes');
+            if (!startTime.isSame(moment(), 'day')) {
+                startTime = moment().endOf('day').subtract(30, 'minutes');
+            }
         }
 
         let endTime = startTime.clone().add(1, 'hours');
