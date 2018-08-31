@@ -158,11 +158,12 @@ class Slot extends Component {
                 url: createUrlWithQuery('https://www.googleapis.com/calendar/v3/calendars/primary/events', queryParams),
             })
                 .then(data => {
+                    const filteredEvents = data.items.filter(event => !event.transparency || event.transparency != 'transparent');
                     this.setState({
                         availability: {
                             loading: false,
                             error: null,
-                            items: data.items
+                            items: filteredEvents
                         }
                     });
                 })
@@ -302,9 +303,15 @@ class Slot extends Component {
                 const calendarEvents = this.state.availability.items.map(event => {
                     let startTime = moment(event.start.dateTime);
                     let endTime = moment(event.end.dateTime);
+                    let isAllDayEvent = false;
+                    if ((startTime.isSame(startTime.clone().startOf('day')) && endTime.isSame(endTime.clone().startOf('day'))) || (event.start.dateTime.length == 10 && event.end.dateTime.length == 10)) {
+                        isAllDayEvent = true;
+                    }
                     return <div key={event.id} onClick={() => quip.apps.openLink(event.htmlLink)} style={{backgroundColor: quip.apps.ui.ColorMap.BLUE.VALUE_LIGHT}}>
                         <div style={{color: '#666666'}}>{event.summary}</div>
-                        <div style={{color: '#ADADAD'}}>{startTime.format('LT')} &mdash; {endTime.format('LT')}</div>
+                        { isAllDayEvent
+                        ? <div style={{color: '#ADADAD'}}>All day</div>
+                        : <div style={{color: '#ADADAD'}}>{startTime.format('LT')} &mdash; {endTime.format('LT')}</div>}
                     </div>
                 });
 
