@@ -44,7 +44,7 @@ class Day extends Component {
 
         let endTime = startTime.clone().add(1, 'hours');
 
-        if (!endTime.isSame(moment(), 'day')) {
+        if (!endTime.isSame(startTime, 'day')) {
             endTime = moment().endOf('day');
         }
 
@@ -91,7 +91,7 @@ class Day extends Component {
             let newEndTime = this.state.endTime;
             if (newEndTime <= newTime) {
                 newEndTime = newTime + 60*60*1000;
-                if (moment(newEndTime).startOf('day').isAfter(moment(newTime).startOf('day'))) {
+                if (!moment(newEndTime).isSame(moment(newTime), 'day')) {
                     newEndTime = moment(newEndTime).startOf('day').valueOf();
                 }
             }
