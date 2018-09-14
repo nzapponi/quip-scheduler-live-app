@@ -1,6 +1,6 @@
 {
     "name": "meeting-scheduler",
-    "version": "1.180914.01",
+    "version": "1.180914.02",
     "description": "meeting-scheduler Quip App",
     "license": "UNLICENSED",
     "scripts": {
