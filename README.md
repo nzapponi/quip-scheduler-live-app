@@ -1,8 +1,10 @@
-# Meeting Scheduler
-By James Blackledge and [Niccolò Zapponi](mailto:nzapponi@salesforce.com)
+# Scheduler Live App for Quip
+By James Blackledge and [Niccolò Zapponi](https://twitter.com/nzapponi)
+
+![Scheduler Live App Screenshot](/docs/screenshot.png?raw=true)
 
 ## Usage
-- Install the live app in Quip by visiting the [AppExchange](https://appexchange.salesforce.com/mktcollections/cloud-collections/Quip)
+- Install the live app in Quip by visiting the [AppExchange](https://appexchange.salesforce.com/appxListingDetail?listingId=a0N3A00000FOmsnUAD)
 - Create a new document in Quip and add the live app by typing ```@Scheduler```
 - Select the dates that you'd like to create slots in
 - Create time slots inside each day by clicking on the plus button
