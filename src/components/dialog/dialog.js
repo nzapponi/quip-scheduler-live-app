@@ -103,7 +103,6 @@ export default class Dialog extends Component {
             const boundingRect = quip.apps.getBoundingClientRect();
             left = viewportDimensions.width / 2 - boundingRect.left;
             top = viewportDimensions.height / 2 - boundingRect.top;
-            console.log(viewportDimensions, boundingRect);
         }
         return <div>
             <div

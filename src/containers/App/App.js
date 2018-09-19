@@ -93,7 +93,7 @@ export default class App extends Component {
             return dateA.timestamp - dateB.timestamp;
         });
 
-        if (editable && quip.apps.getContainerWidth() == 800) {
+        if (editable && !quip.apps.isMobile()) {
             if (days.length == 0) {
                 days.push({
                     timestamp: 0,
