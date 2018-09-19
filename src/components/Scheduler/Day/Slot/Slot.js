@@ -73,6 +73,8 @@ class Slot extends Component {
             this.props.updateSlot();
         }
 
+        this.toggleTooltip(null, false);
+
     }
 
     updateNode = (node) => {
@@ -100,11 +102,20 @@ class Slot extends Component {
         if (e) {
             e.stopPropagation();
         }
-        let newTooltipState = newState;
-        if (!newTooltipState) {
-            newTooltipState = !this.state.tooltipOpen;
+
+        const responses = this.props.slot.get('responses').getRecords();
+        const acceptedResponses = responses.filter(response => {
+            const type = response.get('type');
+            return type == 'yes';
+        });
+
+        if (acceptedResponses.length > 0) {
+            let newTooltipState = newState;
+            if (newTooltipState == null || newTooltipState == undefined) {
+                newTooltipState = !this.state.tooltipOpen;
+            }
+            this.setState({ tooltipOpen: newTooltipState });
         }
-        this.setState({ tooltipOpen: newTooltipState });
     }
 
     render() {
@@ -228,7 +239,7 @@ class Slot extends Component {
                     style={{ zIndex: '10', position: 'absolute', top: '7px', right: '10px', cursor: 'pointer' }}>
                     <Icon type="close" width={18} height={18} color="#7D7D7D" />
                 </div> : null}
-                <div className={[Styles.AnswersBox, accepted ? Styles.AnswersBoxGreen : null].join(' ')} onClick={this.toggleTooltip}>
+                <div className={[Styles.AnswersBox, accepted ? Styles.AnswersBoxGreen : null, acceptedResponses.length > 0 ? Styles.AnswersBoxClickable : null].join(' ')} onClick={this.toggleTooltip}>
                     <Icon type="user" width={18} height={18} color={accepted ? quip.apps.ui.ColorMap.GREEN.VALUE : '#494949'} />
                     <div style={{ fontWeight: 'bold', color: accepted ? quip.apps.ui.ColorMap.GREEN.VALUE : '#494949' }}>{acceptedResponses.length}</div>
                 </div>

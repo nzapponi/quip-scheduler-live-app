@@ -48,12 +48,17 @@
     display: flex;
     padding: 2px 4px;
     margin-right: -4px;
-    cursor: pointer;
+
+    cursor: default;
 
     > svg {
         padding: 2px;
         margin-right: 2px;
     }
+}
+
+.AnswersBoxClickable {
+    cursor: pointer;
 
     &:hover {
         background-color: rgba(54, 54, 54, 0.1);
@@ -61,7 +66,7 @@
     }
 }
 
-.AnswersBoxGreen:hover {
+.AnswersBoxClickable.AnswersBoxGreen:hover {
     background-color: rgba(5, 151, 0, 0.1);
 }
 
