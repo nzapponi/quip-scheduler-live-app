@@ -263,6 +263,13 @@ export default class App extends Component {
     }
 
     deleteDayHandler = (startOfDay) => {
+        const dateToDelete = this.state.dates.find(date => date.timestamp == startOfDay);
+        if (dateToDelete && dateToDelete.timeslots && dateToDelete.timeslots.length) {
+            for (let timeslot of dateToDelete.timeslots) {
+                this.deleteTimeslotHandler(startOfDay, timeslot);
+            }
+        }
+
         const newDates = this.state.dates.filter(date => date.timestamp != startOfDay);
 
         this.setState({
