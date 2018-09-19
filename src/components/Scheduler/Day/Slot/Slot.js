@@ -240,7 +240,7 @@ class Slot extends Component {
                     <Icon type="close" width={18} height={18} color="#7D7D7D" />
                 </div> : null}
                 <div className={[Styles.AnswersBox, accepted ? Styles.AnswersBoxGreen : null, acceptedResponses.length > 0 ? Styles.AnswersBoxClickable : null].join(' ')} onClick={this.toggleTooltip}>
-                    <Icon type="user" width={18} height={18} color={accepted ? quip.apps.ui.ColorMap.GREEN.VALUE : '#494949'} />
+                    <Icon type="check" width={18} height={18} color={accepted ? quip.apps.ui.ColorMap.GREEN.VALUE : '#494949'} />
                     <div style={{ fontWeight: 'bold', color: accepted ? quip.apps.ui.ColorMap.GREEN.VALUE : '#494949' }}>{acceptedResponses.length}</div>
                 </div>
 

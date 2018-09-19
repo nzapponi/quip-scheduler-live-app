@@ -24,6 +24,10 @@
     border: 2px solid #35D55C;
 }
 
+.SlotBox:not(.Selected) {
+    animation: pulse 1.5s ease-in-out 2;
+}
+
 .ThirtyMin {
     height: 75px;
 }
@@ -112,5 +116,19 @@
 
     > div:not(:first-child) {
         margin-left: 5px;
+    }
+}
+
+@keyframes pulse {
+    0% {
+        background-color: #FCFDFF;
+    }
+
+    50% {
+        background-color: #f3f3f3;
+    }
+
+    100% {
+        background-color: #FCFDFF;
     }
 }
