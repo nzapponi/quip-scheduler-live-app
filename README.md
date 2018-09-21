@@ -1,5 +1,5 @@
 # Scheduler Live App for Quip
-By James Blackledge and [Niccolò Zapponi](https://twitter.com/nzapponi)
+By [James Blackledge](https://www.linkedin.com/in/james-blackledge/) and [Niccolò Zapponi](https://twitter.com/nzapponi)
 
 ![Scheduler Live App Screenshot](/docs/screenshot.png?raw=true)
 
