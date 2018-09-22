@@ -2,11 +2,15 @@
     "id": "OeaAjAG7bTv",
     "manifest_version": 1,
     "name": "Scheduler",
-    "version_name": "1.180818.01",
-    "version_number": 118081801,
+    "description": "Find the best time slot that fits everyone's schedules.",
+    "version_name": "1.180919.02",
+    "version_number": 118091902,
     "sizing_mode": "fit_content",
     "initial_height": 300,
     "initial_width": 300,
     "js_files": ["dist/app.js"],
-    "css_files": ["dist/app.css"]
+    "css_files": ["dist/app.css"],
+    "thumbnail": "icons/thumbnail.svg",
+    "toolbar_icon": "icons/toolbar.svg",
+    "toolbar_color": "green"
 }

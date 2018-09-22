@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="775px" height="443px" viewBox="0 0 775 443" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 51.2 (57519) - http://www.bohemiancoding.com/sketch -->
+    <title>Thumbnail with background</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="MOBILE-V1" transform="translate(-2096.000000, -485.000000)">
+            <g id="Thumbnail-with-background" transform="translate(2096.000000, 485.000000)">
+                <rect id="Rectangle-10" fill="#EBFBEF" x="0" y="0" width="775" height="443"></rect>
+                <g id="Thumbnail" transform="translate(95.000000, 43.000000)">
+                    <rect id="Rectangle-Copy-22" fill="#FFFFFF" x="0" y="225" width="177" height="132" rx="10"></rect>
+                    <rect id="Rectangle-Copy-22" fill="#FFFFFF" x="408" y="0" width="177" height="77" rx="10"></rect>
+                    <rect id="Rectangle-Copy-22" fill="#FFFFFF" x="204" y="0" width="177" height="137" rx="10"></rect>
+                    <rect id="Rectangle-Copy-22" fill="#FFFFFF" x="204" y="280" width="177" height="77" rx="10"></rect>
+                    <rect id="Rectangle-Copy-29" stroke="#D0F6D9" stroke-width="3" fill="#38D55F" x="1.5" y="1.5" width="174" height="197" rx="10"></rect>
+                    <rect id="Rectangle-Copy-29" stroke="#D0F6D9" stroke-width="3" fill="#38D55F" x="409.5" y="101.5" width="174" height="254" rx="10"></rect>
+                    <rect id="Rectangle-Copy-38" fill="#35D55C" x="204" y="159" width="177" height="100" rx="10"></rect>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

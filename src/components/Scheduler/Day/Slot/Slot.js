@@ -88,6 +88,8 @@ class Slot extends Component {
             this.props.updateSlot();
         }
 
+        this.toggleTooltip(null, false);
+
     }
 
     updateNode = (node) => {
@@ -126,11 +128,20 @@ class Slot extends Component {
         if (e) {
             e.stopPropagation();
         }
-        let newTooltipState = newState;
-        if (!newTooltipState) {
-            newTooltipState = !this.state.availabilityTooltipOpen;
+
+        const responses = this.props.slot.get('responses').getRecords();
+        const acceptedResponses = responses.filter(response => {
+            const type = response.get('type');
+            return type == 'yes';
+        });
+
+        if (acceptedResponses.length > 0) {
+            let newTooltipState = newState;
+            if (newTooltipState == null || newTooltipState == undefined) {
+                newTooltipState = !this.state.tooltipOpen;
+            }
+            this.setState({ tooltipOpen: newTooltipState });
         }
-        this.setState({ availabilityTooltipOpen: newTooltipState });
     }
 
     checkAvailability = () => {
@@ -307,17 +318,17 @@ class Slot extends Component {
                     if ((startTime.isSame(startTime.clone().startOf('day')) && endTime.isSame(endTime.clone().startOf('day'))) || (event.start.dateTime.length == 10 && event.end.dateTime.length == 10)) {
                         isAllDayEvent = true;
                     }
-                    return <div key={event.id} onClick={() => quip.apps.openLink(event.htmlLink)} style={{backgroundColor: quip.apps.ui.ColorMap.BLUE.VALUE_LIGHT}}>
-                        <div style={{color: '#666666'}}>{event.summary}</div>
-                        { isAllDayEvent
-                        ? <div style={{color: '#ADADAD'}}>All day</div>
-                        : <div style={{color: '#ADADAD'}}>{startTime.format('LT')} &mdash; {endTime.format('LT')}</div>}
+                    return <div key={event.id} onClick={() => quip.apps.openLink(event.htmlLink)} style={{ backgroundColor: quip.apps.ui.ColorMap.BLUE.VALUE_LIGHT }}>
+                        <div style={{ color: '#666666' }}>{event.summary}</div>
+                        {isAllDayEvent
+                            ? <div style={{ color: '#ADADAD' }}>All day</div>
+                            : <div style={{ color: '#ADADAD' }}>{startTime.format('LT')} &mdash; {endTime.format('LT')}</div>}
                     </div>
                 });
 
                 availabilityTooltip = <Tooltip onBlur={() => this.toggleAvailabilityTooltip(null, false)} marginLeft="-80px">
-                    <div onClick={e => e.stopPropagation()} style={{width: '200px', padding: '5px'}}>
-                        <div style={{color: '#666666', textAlign: 'center'}}>CALENDAR CLASHES</div>
+                    <div onClick={e => e.stopPropagation()} style={{ width: '200px', padding: '5px' }}>
+                        <div style={{ color: '#666666', textAlign: 'center' }}>CALENDAR CLASHES</div>
                         <div className={Styles.AvailabilitySlots}>
                             {calendarEvents}
                         </div>
@@ -377,10 +388,11 @@ class Slot extends Component {
                     style={{ zIndex: '10', position: 'absolute', top: '7px', right: '10px', cursor: 'pointer' }}>
                     <Icon type="close" width={18} height={18} color="#7D7D7D" />
                 </div> : null}
+
                 <div className={Styles.BottomRightOptions}>
                     {calendarAvailability}
-                    <div className={[Styles.AnswersBox, accepted ? Styles.AnswersBoxGreen : null].join(' ')} onClick={this.toggleAttendeesTooltip}>
-                        <Icon type="user" width={18} height={18} color={accepted ? quip.apps.ui.ColorMap.GREEN.VALUE : '#494949'} />
+                    <div className={[Styles.AnswersBox, accepted ? Styles.AnswersBoxGreen : null, acceptedResponses.length > 0 ? Styles.AnswersBoxClickable : null].join(' ')} onClick={this.toggleTooltip}>
+                        <Icon type="check" width={18} height={18} color={accepted ? quip.apps.ui.ColorMap.GREEN.VALUE : '#494949'} />
                         <div style={{ fontWeight: 'bold', color: accepted ? quip.apps.ui.ColorMap.GREEN.VALUE : '#494949' }}>{acceptedResponses.length}</div>
                     </div>
                 </div>

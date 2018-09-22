@@ -24,6 +24,10 @@
     border: 2px solid #35D55C;
 }
 
+.SlotBox:not(.Selected) {
+    animation: pulse 1.5s ease-in-out 2;
+}
+
 .ThirtyMin {
     height: 75px;
 }
@@ -52,12 +56,22 @@
     z-index: 10;
     display: flex;
     padding: 2px 4px;
+<<<<<<< HEAD
     cursor: pointer;
+=======
+    margin-right: -4px;
+
+    cursor: default;
+>>>>>>> master
 
     > svg {
         padding: 2px;
         margin-right: 2px;
     }
+}
+
+.AnswersBoxClickable {
+    cursor: pointer;
 
     &:hover {
         background-color: rgba(54, 54, 54, 0.1);
@@ -65,7 +79,7 @@
     }
 }
 
-.AnswersBoxGreen:hover {
+.AnswersBoxClickable.AnswersBoxGreen:hover {
     background-color: rgba(5, 151, 0, 0.1);
 }
 
@@ -127,5 +141,19 @@
 
     > div:not(:first-child) {
         margin-left: 5px;
+    }
+}
+
+@keyframes pulse {
+    0% {
+        background-color: #FCFDFF;
+    }
+
+    50% {
+        background-color: #f3f3f3;
+    }
+
+    100% {
+        background-color: #FCFDFF;
     }
 }

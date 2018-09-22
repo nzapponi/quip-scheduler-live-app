@@ -15,6 +15,7 @@ class Day extends Component {
         endTime: null,
         newSlotError: null,
         pendingPulse: false,
+        deletingDay: false,
         pulsing: false,
         newSelectedDate: this.props.validateDate(moment().startOf('day').valueOf()) ? null : moment().startOf('day').valueOf(),
         newDateError: this.props.validateDate(moment().startOf('day').valueOf()) ? 'This date is already selected' : null
@@ -36,15 +37,15 @@ class Day extends Component {
             } else {
                 startTime = moment().startOf('hour').add(1, 'hours');
             }
-        }
 
-        if (!startTime.isSame(moment(), 'day')) {
-            startTime = moment().endOf('day').subtract(30, 'minutes');
+            if (!startTime.isSame(moment(), 'day')) {
+                startTime = moment().endOf('day').subtract(30, 'minutes');
+            }
         }
 
         let endTime = startTime.clone().add(1, 'hours');
 
-        if (!endTime.isSame(moment(), 'day')) {
+        if (!endTime.isSame(startTime, 'day')) {
             endTime = moment().endOf('day');
         }
 
@@ -91,7 +92,7 @@ class Day extends Component {
             let newEndTime = this.state.endTime;
             if (newEndTime <= newTime) {
                 newEndTime = newTime + 60*60*1000;
-                if (moment(newEndTime).startOf('day').isAfter(moment(newTime).startOf('day'))) {
+                if (!moment(newEndTime).isSame(moment(newTime), 'day')) {
                     newEndTime = moment(newEndTime).startOf('day').valueOf();
                 }
             }
@@ -156,6 +157,14 @@ class Day extends Component {
 
     updateNewDate = () => {
         this.props.setNewDate(this.props.day.timestamp, this.state.newSelectedDate);
+    }
+
+    openDateDelete = () => {
+        this.setState({ deletingDay: true });
+    }
+
+    dismissDateDelete = () => {
+        this.setState({ deletingDay: false });
     }
 
     render() {
@@ -287,10 +296,34 @@ class Day extends Component {
         }
 
         let deleteButton;
-        if (editable && dayConfiguration.timestamp != 0 && dayConfiguration.timeslots.length == 0) {
-            deleteButton = <div style={{backgroundColor: quip.apps.ui.ColorMap.RED.VALUE}} onClick={() => this.props.deleteDate(dayConfiguration.timestamp)} className={Styles.BottomButton}>
+        if (editable && dayConfiguration.timestamp != 0) {
+            deleteButton = <div style={{backgroundColor: quip.apps.ui.ColorMap.RED.VALUE}} onClick={this.openDateDelete} className={Styles.BottomButton}>
                 <Icon type="close" color="#FFFFFF" width={20} height={20} />
             </div>;
+        }
+
+        let deleteDayDialog;
+        if (this.state.deletingDay) {
+            deleteDayDialog = <Dialog onDismiss={this.dismissDateDelete}>
+            <div className={Styles.dialog}>
+                <div className={Styles.header}>
+                    {quiptext("Delete Entire Day")}
+                </div>
+                <div className={Styles.picker} style={{ minHeight: 'auto', padding: '0px 40px 20px 40px', alignItems: 'center' }}>
+                    <span style={{minWidth: '200px'}}>Are you sure you want to delete the entire day?<br /><br />
+                    All slots and related responses will be lost.</span>
+                </div>
+                <div className={Styles.actions}>
+                    <quip.apps.ui.Button
+                        text={quiptext("Cancel")}
+                        onClick={this.dismissDateDelete} />
+                    <quip.apps.ui.Button
+                        primary={true}
+                        text={quiptext("Delete")}
+                        onClick={() => this.props.deleteDate(dayConfiguration.timestamp)} />
+                </div>
+            </div>
+        </Dialog>;
         }
 
         const styles = [
@@ -333,6 +366,7 @@ class Day extends Component {
             </div> : null }
             {editable ? datePicker : null}
             {editable ? newSlotPicker : null}
+            {deleteDayDialog}
         </div>;
     }
     
