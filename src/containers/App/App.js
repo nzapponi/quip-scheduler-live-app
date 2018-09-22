@@ -1,8 +1,12 @@
 import React, { Component } from 'react';
 import moment from 'moment';
+
+import ExternalCalendars from '../../externalCalendars';
+import Scheduler from '../../components/Scheduler/Scheduler';
+
 import Styles from "./App.less";
 
-import Scheduler from '../../components/Scheduler/Scheduler';
+const externalCalendars = new ExternalCalendars();
 
 export default class App extends Component {
 
@@ -10,13 +14,13 @@ export default class App extends Component {
         record: null,
         containerWidth: 800,
         dates: [],
-        googleLogin: false
+        calendarLogin: false
     }
 
     componentDidMount() {
         this.updateContainerWidth();
         this.updateDates();
-        this.updateGoogleLogin();
+        this.updateCalendarState();
 
         this.setState({
             record: this.props.record
@@ -45,78 +49,26 @@ export default class App extends Component {
         quip.apps.removeEventListener(quip.apps.EventType.CONTAINER_SIZE_UPDATE, this.updateContainerWidth);
     }
 
-    updateGoogleLogin = () => {
-        const google = quip.apps.auth('google');
-        if (google) {
-            this.setState({ googleLogin: google.isLoggedIn() });
-        }
+    updateCalendarState = () => {
+        this.setState({ calendarLogin: externalCalendars.isLoggedIn });
     }
 
-    updateMenu = () => {
-        const commandList = ['google-header'];
-        if (this.state.googleLogin) {
-            commandList.push('google-logout');
-        } else {
-            commandList.push('google-login');
-        }
-
-        const menuCommands = [
-            {
-                id: quip.apps.DocumentMenuCommands.MENU_MAIN,
-                subCommands: commandList
-            },
-            {
-                id: 'google-header',
-                label: 'Calendar Integration',
-                isHeader: true
-            },
-            {
-                id: 'google-login',
-                label: 'Connect to Google…',
-                handler: this.googleLoginHandler
-            },
-            {
-                id: 'google-logout',
-                label: 'Disconnect Google',
-                handler: this.googleLogoutHandler
-            }
-        ];
-        const toolbarCommandIds = [ quip.apps.DocumentMenuCommands.MENU_MAIN ];
-        const disabledCommandIds = [];
-
-        quip.apps.updateToolbar({
-            toolbarCommandIds: toolbarCommandIds,
-            menuCommands: menuCommands,
-            disabledCommandIds: disabledCommandIds
-        });
-    }
-
-    googleLoginHandler = () => {
-        const google = quip.apps.auth('google');
-        if (google) {
-            google.login({
-                access_type: 'offline',
-                prompt: 'consent'
+    calendarLoginHandler = (providerName) => {
+        return externalCalendars.login(providerName)
+            .then(() => {
+                this.updateCalendarState();
             })
-                .then(() => {
-                    console.log('Google login successful!');
-                    this.setState({ googleLogin: true });
-                })
-                .catch(err => {
-                    console.log('Error while logging into Google', err);
-                    this.setState({ googleLogin: false });
-                });
-        }
+            .catch(err => {
+                console.log('Error while logging into calendar', err);
+                this.updateCalendarState();
+            });
     }
 
-    googleLogoutHandler = () => {
-        const google = quip.apps.auth('google');
-        if (google) {
-            google.logout()
-                .then(() => {
-                    this.setState({ googleLogin: false });
-                });
-        }
+    calendarLogoutHandler = () => {
+        return externalCalendars.logout()
+            .then(() => {
+                this.updateCalendarState();
+            });
     }
 
     updateContainerWidth = () => {
@@ -357,9 +309,13 @@ export default class App extends Component {
         return this.state.dates.find(d => d.timestamp == startOfDay);
     }
 
+    checkCalendarAvailability = (startTime, endTime) => {
+        return externalCalendars.checkAvailability(startTime, endTime);
+    }
+
     render() {
 
-        this.updateMenu();
+        externalCalendars.updateMenu();
 
         return <div>
             <Scheduler
@@ -372,7 +328,8 @@ export default class App extends Component {
                 createTimeslot={this.createTimeslotHander}
                 deleteTimeslot={this.deleteTimeslotHandler}
                 containerWidth={this.state.containerWidth}
-                googleLogin={this.state.googleLogin} />
+                calendarLogin={this.state.calendarLogin}
+                checkCalendarAvailability={this.checkCalendarAvailability} />
         </div>;
     }
 }

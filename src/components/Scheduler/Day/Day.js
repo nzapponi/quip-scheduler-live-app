@@ -230,7 +230,8 @@ class Day extends Component {
                     deleteTimeslot={this.props.deleteTimeslot}
                     updateSlot={this.updateSlotHandler}
                     isMobile={this.props.isMobile}
-                    googleLogin={this.props.googleLogin} />;
+                    calendarLogin={this.props.calendarLogin}
+                    checkCalendarAvailability={this.props.checkCalendarAvailability} />;
             });
         }
 

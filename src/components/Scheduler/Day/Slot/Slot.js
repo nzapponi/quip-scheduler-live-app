@@ -36,7 +36,7 @@ class Slot extends Component {
     }
 
     componentDidUpdate(prevProps) {
-        if (this.props.googleLogin !== prevProps.googleLogin) {
+        if (this.props.calendarLogin !== prevProps.calendarLogin) {
             this.checkAvailability();
         }
     }
@@ -153,28 +153,16 @@ class Slot extends Component {
             }
         });
 
-        if (this.props.googleLogin) {
-            const google = quip.apps.auth('google');
+        if (this.props.calendarLogin) {
             const startTime = moment(this.props.slot.get('startTime'));
             const endTime = moment(this.props.slot.get('endTime'));
-
-            const queryParams = {
-                singleEvents: true,
-                orderBy: 'startTime',
-                timeMin: startTime.format('YYYY-MM-DDTHH:mm:ss.SSSZ'),
-                timeMax: endTime.format('YYYY-MM-DDTHH:mm:ss.SSSZ')
-            };
-
-            this.authRequest(google, {
-                url: createUrlWithQuery('https://www.googleapis.com/calendar/v3/calendars/primary/events', queryParams),
-            })
-                .then(data => {
-                    const filteredEvents = data.items.filter(event => !event.transparency || event.transparency != 'transparent');
+            this.props.checkCalendarAvailability(startTime, endTime)
+                .then(events => {
                     this.setState({
                         availability: {
                             loading: false,
                             error: null,
-                            items: filteredEvents
+                            items: events
                         }
                     });
                 })
@@ -185,7 +173,7 @@ class Slot extends Component {
                             error: err,
                             items: []
                         }
-                    })
+                    });
                 });
         }
     }

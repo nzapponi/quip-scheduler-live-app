@@ -24,7 +24,8 @@ const scheduler = (props) => {
             createTimeslot={props.createTimeslot}
             deleteTimeslot={props.deleteTimeslot}
             deleteDate={props.deleteDate}
-            googleLogin={props.googleLogin}
+            calendarLogin={props.calendarLogin}
+            checkCalendarAvailability={props.checkCalendarAvailability}
             isMobile={quip.apps.isMobile()} />);
     }
 
