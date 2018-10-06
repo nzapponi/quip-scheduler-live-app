@@ -1,105 +1,4 @@
-const SUPPORTED_PROVIDERS = {
-    'google': new GoogleCalendar(),
-    'microsoft': new Microsoft365()
-};
-
-class ExternalCalendars {
-    provider = null
-    name = null
-    isLoggedIn = false
-
-    constructor() {
-        const providers = Object.keys(SUPPORTED_PROVIDERS).map(provider => ({
-            auth: quip.apps.auth(provider),
-            name: provider
-        }));
-
-        for (let provider of providers) {
-            if (!this.isLoggedIn && provider.auth && provider.auth.isLoggedIn()) {
-                this.isLoggedIn = true;
-                this.provider = provider.auth;
-                this.name = provider.name
-            }
-        }
-    }
-
-    login(providerName) {
-        if (SUPPORTED_PROVIDERS[providerName] && !this.isLoggedIn) {
-            // log in here
-            const handler = SUPPORTED_PROVIDERS[providerName];
-            const auth = quip.apps.auth(providerName);
-            return handler.login(auth)
-                .then(() => {
-                    console.log('Login successful!');
-                    this.isLoggedIn = true;
-                    this.provider = auth;
-                    this.name = providerName;
-                });
-        } else {
-            return Promise.reject('Provider specified is not supported');
-        }
-    }
-
-    logout() {
-        if (this.isLoggedIn) {
-            this.provider.logout()
-                .then(() => {
-                    console.log('Logout successful!');
-                    this.isLoggedIn = false;
-                    this.provider = null;
-                    this.name = null;
-                });
-        }
-    }
-
-    checkAvailability(startTime, endTime) {
-        if (this.isLoggedIn) {
-            const handler = SUPPORTED_PROVIDERS[this.name];
-            return handler.checkAvailability(this.provider, startTime, endTime);
-        } else {
-            return Promise.reject('Not logged in');
-        }
-    }
-
-    updateMenu() {
-        const commandList = ['calendar-header'];
-        if (this.isLoggedIn) {
-            commandList.push('calendar-logout');
-        } else {
-            commandList.push(...Object.keys(SUPPORTED_PROVIDERS).map(name => `${name}-login`));
-        }
-
-        const menuCommands = [
-            {
-                id: quip.apps.DocumentMenuCommands.MENU_MAIN,
-                subCommands: commandList
-            },
-            {
-                id: 'calendar-header',
-                label: 'Calendar Integration',
-                isHeader: true
-            },
-            {
-                id: 'calendar-logout',
-                label: 'Disconnect Calendar',
-                handler: this.googleLogoutHandler
-            },
-            ...Object.keys(SUPPORTED_PROVIDERS).map(name => ({
-                id: `${name}-login`,
-                label: `Connect to ${SUPPORTED_PROVIDERS[name].label}…`,
-                handler: () => this.login(name)
-            }))
-        ];
-        const toolbarCommandIds = [quip.apps.DocumentMenuCommands.MENU_MAIN];
-        const disabledCommandIds = [];
-
-        quip.apps.updateToolbar({
-            toolbarCommandIds: toolbarCommandIds,
-            menuCommands: menuCommands,
-            disabledCommandIds: disabledCommandIds
-        });
-    }
-}
+import { createUrlWithQuery } from './shared/utils.js';
 
 class CalendarIntegration {
     authRequest = (auth, requestParams) => {
@@ -152,11 +51,12 @@ class GoogleCalendar extends CalendarIntegration {
             singleEvents: true,
             orderBy: 'startTime',
             timeMin: startTime.format('YYYY-MM-DDTHH:mm:ss.SSSZ'),
-            timeMax: endTime.format('YYYY-MM-DDTHH:mm:ss.SSSZ')
+            timeMax: endTime.format('YYYY-MM-DDTHH:mm:ss.SSSZ'),
+            timeZone: 'UTC'
         };
 
         return this.authRequest(auth, {
-            url: createUrlWithQuery('https://www.googleapis.com/calendar/v3/calendars/primary/events', queryParams),
+            url: createUrlWithQuery('https://www.googleapis.com/calendar/v3/calendars/primary/events', queryParams)
         })
             .then(data => {
                 return data.items.filter(event => !event.transparency || event.transparency != 'transparent');
@@ -175,6 +75,89 @@ class Microsoft365 extends CalendarIntegration {
         });
     }
 
+    checkAvailability(auth, startTime, endTime) {
+        console.log(`Microsoft is checking availability for ${startTime.format('YYYY-MM-DDTHH:mm:ss.SSSZ')} - ${endTime.format('YYYY-MM-DDTHH:mm:ss.SSSZ')}`);
+
+        const queryParams = {
+            startDateTime: startTime.add('seconds', 1).format('YYYY-MM-DDTHH:mm:ss.SSSZ'),
+            endDateTime: endTime.subtract('seconds', 1).format('YYYY-MM-DDTHH:mm:ss.SSSZ')
+        };
+        
+        return this.authRequest(auth, {
+            url: createUrlWithQuery('https://graph.microsoft.com/v1.0/me/calendarview', queryParams)
+        })
+            .then(data => {
+                return data.value.filter(event => event.showAs == 'busy' && !event.isCancelled)
+            });
+    }
+
+}
+
+export const SUPPORTED_PROVIDERS = {
+    'google': new GoogleCalendar(),
+    'microsoft': new Microsoft365()
+};
+
+class ExternalCalendars {
+    provider = null
+    name = null
+    isLoggedIn = false
+
+    updateStatus() {
+        const providers = Object.keys(SUPPORTED_PROVIDERS).map(provider => ({
+            auth: quip.apps.auth(provider),
+            name: provider
+        }));
+
+        for (let provider of providers) {
+            let auth = quip.apps.auth(provider.name);
+            if (!this.isLoggedIn && provider.auth && provider.auth.isLoggedIn()) {
+                this.isLoggedIn = true;
+                this.provider = provider.auth;
+                this.name = provider.name
+            }
+        }
+    }
+
+    login(providerName) {
+        if (SUPPORTED_PROVIDERS[providerName] && !this.isLoggedIn) {
+            // log in here
+            const handler = SUPPORTED_PROVIDERS[providerName];
+            const auth = quip.apps.auth(providerName);
+            return handler.login(auth)
+                .then(() => {
+                    console.log('Login successful!');
+                    this.isLoggedIn = true;
+                    this.provider = auth;
+                    this.name = providerName;
+                });
+        } else {
+            return Promise.reject('Provider specified is not supported');
+        }
+    }
+
+    logout() {
+        if (this.isLoggedIn) {
+            return this.provider.logout()
+                .then(() => {
+                    console.log('Logout successful!');
+                    this.isLoggedIn = false;
+                    this.provider = null;
+                    this.name = null;
+                });
+        } else {
+            return Promise.reject();
+        }
+    }
+
+    checkAvailability(startTime, endTime) {
+        if (this.isLoggedIn) {
+            const handler = SUPPORTED_PROVIDERS[this.name];
+            return handler.checkAvailability(this.provider, startTime, endTime);
+        } else {
+            return Promise.reject('Not logged in');
+        }
+    }
 }
 
 export default ExternalCalendars;

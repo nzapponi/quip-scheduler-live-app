@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import moment from 'moment';
 
-import ExternalCalendars from '../../externalCalendars';
+import ExternalCalendars, { SUPPORTED_PROVIDERS } from '../../externalCalendars';
 import Scheduler from '../../components/Scheduler/Scheduler';
 
-import Styles from "./App.less";
+// import Styles from "./App.less";
 
 const externalCalendars = new ExternalCalendars();
 
@@ -49,7 +49,47 @@ export default class App extends Component {
         quip.apps.removeEventListener(quip.apps.EventType.CONTAINER_SIZE_UPDATE, this.updateContainerWidth);
     }
 
+    updateMenu() {
+        const commandList = ['calendar-header'];
+        if (externalCalendars.isLoggedIn) {
+            commandList.push('calendar-logout');
+        } else {
+            commandList.push(...Object.keys(SUPPORTED_PROVIDERS).map(name => `${name}-login`));
+        }
+
+        const menuCommands = [
+            {
+                id: quip.apps.DocumentMenuCommands.MENU_MAIN,
+                subCommands: commandList
+            },
+            {
+                id: 'calendar-header',
+                label: 'Calendar Integration',
+                isHeader: true
+            },
+            {
+                id: 'calendar-logout',
+                label: 'Disconnect Calendar',
+                handler: this.calendarLogoutHandler
+            },
+            ...Object.keys(SUPPORTED_PROVIDERS).map(name => ({
+                id: `${name}-login`,
+                label: `Connect to ${SUPPORTED_PROVIDERS[name].label}`,
+                handler: () => this.calendarLoginHandler(name)
+            }))
+        ];
+        const toolbarCommandIds = [quip.apps.DocumentMenuCommands.MENU_MAIN];
+        const disabledCommandIds = [];
+
+        quip.apps.updateToolbar({
+            toolbarCommandIds: toolbarCommandIds,
+            menuCommands: menuCommands,
+            disabledCommandIds: disabledCommandIds
+        });
+    }
+
     updateCalendarState = () => {
+        externalCalendars.updateStatus();
         this.setState({ calendarLogin: externalCalendars.isLoggedIn });
     }
 
@@ -315,7 +355,7 @@ export default class App extends Component {
 
     render() {
 
-        externalCalendars.updateMenu();
+        this.updateMenu();
 
         return <div>
             <Scheduler
