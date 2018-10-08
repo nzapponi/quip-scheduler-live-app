@@ -125,6 +125,7 @@ class Day extends Component {
     }
 
     updateSlotHandler = () => {
+        this.props.updateUniqueUsers();
         this.setState({});
     }
 
@@ -223,7 +224,14 @@ class Day extends Component {
                 return timeA - timeB;
             }).map((slot) => {
                 const key = slot.get('startTime') + '-' + slot.get('endTime');
-                return <Slot key={key} startOfDay={dayConfiguration.timestamp} slot={slot} deleteTimeslot={this.props.deleteTimeslot} updateSlot={this.updateSlotHandler} isMobile={this.props.isMobile} />;
+                return <Slot
+                    key={key}
+                    startOfDay={dayConfiguration.timestamp}
+                    slot={slot}
+                    deleteTimeslot={this.props.deleteTimeslot}
+                    updateSlot={this.updateSlotHandler}
+                    uniqueUsers={this.props.uniqueUsers}
+                    isMobile={this.props.isMobile} />;
             });
         }
 
@@ -306,7 +314,7 @@ class Day extends Component {
                     <span style={{minWidth: '200px'}}>Are you sure you want to delete the entire day?<br /><br />
                     All slots and related responses will be lost.</span>
                 </div>
-                <div className={Styles.actions}>
+                <div className={[Styles.actions, Styles.wideActions].join(' ')}>
                     <quip.apps.ui.Button
                         text={quiptext("Cancel")}
                         onClick={this.dismissDateDelete} />
