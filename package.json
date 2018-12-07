@@ -13,10 +13,10 @@
     },
     "author": "Salesforce.com, Inc",
     "devDependencies": {
-        "quip-apps-webpack-config": ">=0.0.29"
+        "quip-apps-webpack-config": "^0.0.41"
     },
     "dependencies": {
-        "@salesforce-ux/design-system": "^2.6.2",
+        "@salesforce-ux/design-system": "^2.7.5",
         "moment": "^2.22.2"
     }
 }
