@@ -26,7 +26,9 @@ const scheduler = (props) => {
             deleteDate={props.deleteDate}
             calendarLogin={props.calendarLogin}
             checkCalendarAvailability={props.checkCalendarAvailability}
-            isMobile={quip.apps.isMobile()} />);
+            isMobile={quip.apps.isMobile()}
+            uniqueUsers={props.uniqueUsers}
+            updateUniqueUsers={props.updateUniqueUsers} />);
     }
 
     return <div className={styles.join(' ')} style={{width: quip.apps.isMobile() ? props.containerWidth : null}}>

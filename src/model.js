@@ -14,6 +14,22 @@ export class Root extends quip.apps.RootRecord {
             timeSlots: []
         }
     }
+
+    getUniqueUsers() {
+        let users = [];
+
+        for (let timeslot of this.get('timeSlots').getRecords()) {
+            for (let response of timeslot.get('responses').getRecords()) {
+                let user = response.get('userId');
+                let responseType = response.get('type');
+                if (responseType == 'yes' && users.indexOf(user) == -1) {
+                    users.push(user);
+                }
+            }
+        }
+
+        return users;
+    }
 }
 
 export class Timeslot extends quip.apps.Record {

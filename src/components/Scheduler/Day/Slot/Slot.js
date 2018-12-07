@@ -338,12 +338,10 @@ class Slot extends Component {
             styles.push(Styles.ThirtyMin);
         }
 
-        let docMembers = quip.apps.getDocumentMembers();
-
         let height = 0;
         let heightStyles = [Styles.HeightBox];
-        if (docMembers.length > 0) {
-            height = acceptedResponses.length / docMembers.length * 100;
+        if (this.props.uniqueUsers.length > 0) {
+            height = acceptedResponses.length / this.props.uniqueUsers.length * 100;
             if (height == 100) {
                 heightStyles.push(Styles.OneHundredPercent);
             }

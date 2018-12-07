@@ -14,13 +14,15 @@ export default class App extends Component {
         record: null,
         containerWidth: 800,
         dates: [],
-        calendarLogin: false
+        calendarLogin: false,
+        uniqueUsers: []
     }
 
     componentDidMount() {
         this.updateContainerWidth();
         this.updateDates();
         this.updateCalendarState();
+        this.updateUserCountHandler();
 
         this.setState({
             record: this.props.record
@@ -353,10 +355,18 @@ export default class App extends Component {
         return externalCalendars.checkAvailability(startTime, endTime);
     }
 
+    updateUserCountHandler = () => {
+        let users = this.props.record.getUniqueUsers();
+        console.log(users);
+
+        this.setState({
+            uniqueUsers: this.props.record.getUniqueUsers()
+        });
+    }
+
     render() {
-
         this.updateMenu();
-
+        
         return <div>
             <Scheduler
                 days={this.state.dates}
@@ -367,9 +377,11 @@ export default class App extends Component {
                 validateDate={this.checkIfDateExists}
                 createTimeslot={this.createTimeslotHander}
                 deleteTimeslot={this.deleteTimeslotHandler}
-                containerWidth={this.state.containerWidth}
                 calendarLogin={this.state.calendarLogin}
-                checkCalendarAvailability={this.checkCalendarAvailability} />
+                checkCalendarAvailability={this.checkCalendarAvailability}
+                uniqueUsers={this.state.uniqueUsers}
+                updateUniqueUsers={this.updateUserCountHandler}
+                containerWidth={this.state.containerWidth} />
         </div>;
     }
 }
